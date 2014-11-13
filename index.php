@@ -15,6 +15,7 @@ $np = new NovaPoshtaApi2($key);
 // $result = $np->getArea('Чернігівська', '');
 // Get city by name and region
 // $result = $np->getCity('Андреевка', 'Запорожье');
-
+// Get types of contragents
+// $result = $np->getTypesOfCounterparties();
 // Get result
 var_export($result);

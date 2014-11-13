@@ -153,4 +153,12 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 		$language = $this->np->getLanguage();
 		$this->assertNotEmpty($language);
 	}
+	
+	/**
+	 * getTypesOfCounterparties()
+	 */
+	function testGetTypesOfCounterparties() {
+		$result = $this->np->getTypesOfCounterparties();
+		$this->assertTrue($result['success']);
+	}
 }

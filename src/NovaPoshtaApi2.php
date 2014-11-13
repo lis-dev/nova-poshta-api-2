@@ -145,7 +145,7 @@ class NovaPoshtaApi2 {
 	 * @param string $method Method name
 	 * @param array $params Required params
 	 */
-	function request($model, $method, $params = array()) {
+	function request($model, $method, $params = NULL) {
 		// Get required URL
 		$url = $this->format == 'xml'
 			? 'https://api.novaposhta.ua/v2.0/xml/'
@@ -307,5 +307,24 @@ class NovaPoshtaApi2 {
 				'warnings' => array(),
 				'info' => array(),
 		));
+	}
+	
+	/**
+	 * Get list from Common model by method
+	 * 
+	 * @param string $method Method name
+	 * @return array
+	 */
+	private function common($method) {
+		return $this->request('Common', $method);
+	}
+	
+	/**
+	 * Get types of conterparies (Sender and Reciever)
+	 * 
+	 * @return array
+	 */
+	function getTypesOfCounterparties() {
+		return $this->common('getTypesOfCounterparties');
 	}
 }
