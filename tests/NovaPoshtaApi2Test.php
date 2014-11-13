@@ -155,10 +155,41 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	}
 	
 	/**
-	 * getTypesOfCounterparties()
+	 * Get list of Common model methods
+	 *
+	 * @dataProvider testGetCommonData
 	 */
-	function testGetTypesOfCounterparties() {
-		$result = $this->np->getTypesOfCounterparties();
+	function testGetCommon($method) {
+		$result = $this->np->$method();
 		$this->assertTrue($result['success']);
+	}
+
+	/**
+	 * Data provider for testGetCommon, returns list of method
+	 */
+	function testGetCommonData() {
+		return array(
+			array('getTypesOfCounterparties'),
+			array('getBackwardDeliveryCargoTypes'),
+			array('getCargoDescriptionList'),
+			array('getCargoTypes'),
+			array('getDocumentStatuses'),
+			array('getOwnershipFormsList'),
+			array('getPalletsList'),
+			array('getPaymentForms'),
+			// Required to sign the agreement
+			// array('getTimeIntervals'), 
+			array('getServiceTypes'),
+			array('getTiresWheelsList'),
+			array('getTraysList'),
+		);
+	}
+	
+	/**
+	 * Call __call with unregistered method 
+	 */
+	function testGetCommonError() {
+		$result = $this->np->someUnregisteredMethod();
+		$this->assertEmpty($result);
 	}
 }

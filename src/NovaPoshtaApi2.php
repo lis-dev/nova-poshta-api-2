@@ -310,21 +310,26 @@ class NovaPoshtaApi2 {
 	}
 	
 	/**
-	 * Get list from Common model by method
-	 * 
-	 * @param string $method Method name
-	 * @return array
+	 * Magic method of calling functions (uses for calling Common Model of NovaPoshta API)
 	 */
-	private function common($method) {
-		return $this->request('Common', $method);
-	}
-	
-	/**
-	 * Get types of conterparies (Sender and Reciever)
-	 * 
-	 * @return array
-	 */
-	function getTypesOfCounterparties() {
-		return $this->common('getTypesOfCounterparties');
+	function __call($method, $arguments) {
+		$common_model_method = array(
+			'getTypesOfCounterparties',
+			'getBackwardDeliveryCargoTypes',
+			'getCargoDescriptionList',
+			'getCargoTypes',
+			'getDocumentStatuses',
+			'getOwnershipFormsList',
+			'getPalletsList',
+			'getPaymentForms',
+			'getTimeIntervals',
+			'getServiceTypes',
+			'getTiresWheelsList',
+			'getTraysList',
+		);
+		// Call method of Common model
+		if (in_array($method, $common_model_method)) {
+			return $this->request('Common', $method);
+		}
 	}
 }
