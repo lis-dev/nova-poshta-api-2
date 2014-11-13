@@ -11,17 +11,23 @@ class NovaPoshtaApi2 {
 	/**
 	 * Key for API NovaPoshta
 	 * 
+	 * @var string $key
 	 * @see https://my.novaposhta.ua/settings/index#apikeys
 	 */
 	protected $key;
 	
 	/**
-	 * Format of returned data - array, json, xml
+	 * @var string $format Format of returned data - array, json, xml
 	 */
 	protected $format = 'array';
 	
 	/**
-	 * Areas (loaded from file, because there is no so function in NovaPoshta API 2.0)
+	 * @var string $language Language of response
+	 */
+	protected $language = 'ru';
+	
+	/**
+	 * @var string $areas Areas (loaded from file, because there is no so function in NovaPoshta API 2.0)
 	 */
 	protected $areas;
 
@@ -29,11 +35,13 @@ class NovaPoshtaApi2 {
 	 * Default constructor
 	 * 
 	 * @param string $key NovaPoshta API key
+	 * @param string $language Default Language
 	 * @return NovaPoshtaApi2 
 	 */
-	function __construct($key) {
-		$this->setKey($key);
-		return $this;
+	function __construct($key, $language = 'ru') {
+		return $this	
+			->setKey($key)
+			->setLanguage($language);
 	}
 	
 	/**
@@ -54,6 +62,26 @@ class NovaPoshtaApi2 {
 	 */
 	function getKey() {
 		return $this->key;
+	}
+	
+	/**
+	 * Setter for language property
+	 * 
+	 * @param string $language
+	 * @return NovaPoshtaApi2
+	 */
+	function setLanguage($language) {
+		$this->language = $language;
+		return $this;
+	}
+	
+	/**
+	 * Getter for language property
+	 * 
+	 * @return string
+	 */
+	function getLanguage() {
+		return $this->language;
 	}
 	
 	/**
@@ -127,6 +155,7 @@ class NovaPoshtaApi2 {
 			'apiKey' => $this->key,
 			'modelName' => $model,
 			'calledMethod' => $method,
+			'language' => $this->language,
 			'methodProperties' => $params
 		);
 		// Convert data to neccessary format

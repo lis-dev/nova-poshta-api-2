@@ -145,4 +145,12 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 			array('Николаев', 'Николаев'),
 		);
 	}
+	
+	/**
+	 * Getting language
+	 */
+	function testLanguageGet() {
+		$language = $this->np->getLanguage();
+		$this->assertNotEmpty($language);
+	}
 }
