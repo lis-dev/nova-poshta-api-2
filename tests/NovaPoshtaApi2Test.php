@@ -68,4 +68,81 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 		$result = json_decode($result, 1);
 		$this->assertEquals($result['success'], 'true');
 	}
+	
+	/**
+	 * Get cities list by city name
+	 * @dataProvider testGetCitiesData
+	 */
+	function testGetCities($cityPage, $cityRef, $cityName) {
+		$result = $this->np->getCities($cityPage, $cityRef, $cityName);
+		$this->assertTrue($result['success']);
+	}
+	
+	/**
+	 * Data provider for testGetCities
+	 */
+	function testGetCitiesData() {
+		return array(
+			array(0, 'Киев', ''),
+			array(1, '', ''),
+			array(0, '', 'a9280688-94c0-11e3-b441-0050568002cf'),
+		);
+	}
+	
+	/**
+	 * Get Areas
+	 * 
+	 * @dataProvider testGetAreaData
+	 */
+	function testGetArea($areaName, $areaRef) {
+		$result = $this->np->getArea($areaName, $areaRef);
+		$this->assertTrue($result['success']);
+	}
+	
+	/**
+	 * Data provider for testGetArea
+	 */
+	function testGetAreaData() {
+		return array(
+			array('Киев', ''),
+			array('Чернігівська', ''),
+			array('Днепропетровск', ''),
+			array('Запорожская', ''),
+			array('Одеська', ''),
+			array('', '7150813e-9b87-11de-822f-000c2965ae0e'),
+			array('', '7150813d-9b87-11de-822f-000c2965ae0e'),
+			array('', '71508135-9b87-11de-822f-000c2965ae0e'),
+			array('Одеська', '71508135-9b87-11de-822f-000c2965ae0e'),
+		);
+	}
+	
+	/**
+	 * Get empty getArea
+	 */
+	function testGetAreaEmpty() {
+		$result = $this->np->getArea('', '');
+		$this->assertFalse($result['success']);
+	}
+	
+	/**
+	 * getCity()
+	 * 
+	 * @dataProvider testGetCityData
+	 */
+	function testGetCity($cityName, $regionName) {
+		$result = $this->np->getCity($cityName, $regionName);
+		$this->assertTrue($result['success']);
+	}
+	
+	/**
+	 * Data provider for testGetCity
+	 */
+	function testGetCityData() {
+		return array(
+			array('Андреевка', 'Запорожье'),
+			array('Андреевка', 'Харьковская'),
+			array('Мариуполь', 'Донецька'),
+			array('Николаев', 'Николаев'),
+		);
+	}
 }
