@@ -326,6 +326,9 @@ class NovaPoshtaApi2 {
 			'getServiceTypes',
 			'getTiresWheelsList',
 			'getTraysList',
+			'getTypesOfAlternativePayers',
+			'getTypesOfPayers',
+			'getTypesOfPayersForRedelivery',
 		);
 		// Call method of Common model
 		if (in_array($method, $common_model_method)) {

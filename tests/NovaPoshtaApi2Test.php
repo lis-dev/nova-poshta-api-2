@@ -182,6 +182,10 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 			array('getServiceTypes'),
 			array('getTiresWheelsList'),
 			array('getTraysList'),
+			array('getTypesOfAlternativePayers'),
+			// Required to sign the agreement
+			// array('getTypesOfPayers'),
+			array('getTypesOfPayersForRedelivery'),
 		);
 	}
 	
