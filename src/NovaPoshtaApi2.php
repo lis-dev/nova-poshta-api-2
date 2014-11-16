@@ -30,6 +30,11 @@ class NovaPoshtaApi2 {
 	 * @var string $areas Areas (loaded from file, because there is no so function in NovaPoshta API 2.0)
 	 */
 	protected $areas;
+	
+	/**
+	 * @var string $model Set current model for methods save(), update(), delete()
+	 */
+	protected $model = 'Common';
 
 	/**
 	 * Default constructor
@@ -41,7 +46,8 @@ class NovaPoshtaApi2 {
 	function __construct($key, $language = 'ru') {
 		return $this	
 			->setKey($key)
-			->setLanguage($language);
+			->setLanguage($language)
+			->common();
 	}
 	
 	/**
@@ -311,6 +317,9 @@ class NovaPoshtaApi2 {
 	
 	/**
 	 * Magic method of calling functions (uses for calling Common Model of NovaPoshta API)
+	 * 
+	 * @param string $method Called method of Common Model
+	 * @param array $arguments Array of params
 	 */
 	function __call($method, $arguments) {
 		$common_model_method = array(
@@ -334,5 +343,73 @@ class NovaPoshtaApi2 {
 		if (in_array($method, $common_model_method)) {
 			return $this->request('Common', $method);
 		}
+	}
+	
+	/**
+	 * Set current model to Common
+	 * 
+	 * @return this
+	 */
+	function common() {
+		$this->model = 'Common';
+		return $this;
+	}
+	
+	/**
+	 * Set current model to ContactPerson
+	 * 
+	 * @return this
+	 */
+	function contactPerson() {
+		$this->model = 'ContactPerson';
+		return $this;
+	}
+	
+	/**
+	 * Set current model to Counterparty
+	 * 
+	 * @return this
+	 */
+	function counterparty() {
+		$this->model = 'Counterparty';
+		return $this;
+	}
+	
+	/**
+	 * Delete method of current model
+	 * 
+	 * @param array $params
+	 * @return mixed
+	 */
+	function delete($params) {
+		return $this->request($this->model, 'delete', $params);
+	}
+	
+	/**
+	 * Update method of current model
+	 * Required params: 
+	 * For ContactPerson model: Ref, CounterpartyRef, FirstName (ukr), MiddleName, LastName, Phone (format 0xxxxxxxxx)
+	 * For Counterparty model: Ref, CounterpartyProperty (Recipient|Sender), CityRef, CounterpartyType (Organization, PrivatePerson), 
+	 * FirstName (or name of organization), MiddleName, LastName, Phone (0xxxxxxxxx), OwnershipForm (if Organization)
+	 * 
+	 * @param array $params
+	 * @return mixed
+	 */
+	function update($params) {
+		return $this->request($this->model, 'update', $params);
+	}
+	
+	/**
+	 * Save method of current model
+	 * Required params: 
+	 * For ContactPerson model: CounterpartyRef, FirstName (ukr), MiddleName, LastName, Phone (format 0xxxxxxxxx)
+	 * For Counterparty model: CounterpartyProperty (Recipient|Sender), CityRef, CounterpartyType (Organization, PrivatePerson), 
+	 * FirstName (or name of organization), MiddleName, LastName, Phone (0xxxxxxxxx), OwnershipForm (if Organization)
+	 * 
+	 * @param array $params
+	 * @return mixed
+	 */
+	function save($params) {
+		return $this->request($this->model, 'save', $params);
 	}
 }

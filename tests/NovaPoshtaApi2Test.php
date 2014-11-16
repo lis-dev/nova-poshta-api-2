@@ -71,7 +71,7 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	
 	/**
 	 * Get cities list by city name
-	 * @dataProvider testGetCitiesData
+	 * @dataProvider getCitiesData
 	 */
 	function testGetCities($cityPage, $cityRef, $cityName) {
 		$result = $this->np->getCities($cityPage, $cityRef, $cityName);
@@ -81,7 +81,7 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	/**
 	 * Data provider for testGetCities
 	 */
-	function testGetCitiesData() {
+	function getCitiesData() {
 		return array(
 			array(0, 'Киев', ''),
 			array(1, '', ''),
@@ -92,7 +92,7 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	/**
 	 * Get Areas
 	 * 
-	 * @dataProvider testGetAreaData
+	 * @dataProvider getAreaData
 	 */
 	function testGetArea($areaName, $areaRef) {
 		$result = $this->np->getArea($areaName, $areaRef);
@@ -102,7 +102,7 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	/**
 	 * Data provider for testGetArea
 	 */
-	function testGetAreaData() {
+	function getAreaData() {
 		return array(
 			array('Киев', ''),
 			array('Чернігівська', ''),
@@ -127,7 +127,7 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	/**
 	 * getCity()
 	 * 
-	 * @dataProvider testGetCityData
+	 * @dataProvider getCityData
 	 */
 	function testGetCity($cityName, $regionName) {
 		$result = $this->np->getCity($cityName, $regionName);
@@ -137,7 +137,7 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	/**
 	 * Data provider for testGetCity
 	 */
-	function testGetCityData() {
+	function getCityData() {
 		return array(
 			array('Андреевка', 'Запорожье'),
 			array('Андреевка', 'Харьковская'),
@@ -157,7 +157,7 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	/**
 	 * Get list of Common model methods
 	 *
-	 * @dataProvider testGetCommonData
+	 * @dataProvider getCommonData
 	 */
 	function testGetCommon($method) {
 		$result = $this->np->$method();
@@ -167,7 +167,7 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	/**
 	 * Data provider for testGetCommon, returns list of method
 	 */
-	function testGetCommonData() {
+	function getCommonData() {
 		return array(
 			array('getTypesOfCounterparties'),
 			array('getBackwardDeliveryCargoTypes'),
@@ -195,5 +195,98 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	function testGetCommonError() {
 		$result = $this->np->someUnregisteredMethod();
 		$this->assertEmpty($result);
+	}
+	
+	/**
+	 * Save for Counterparty model
+	 */
+	function testCounterpartySave() {
+		$result = $this->np->counterparty()->save(array(
+			'CounterpartyProperty' => 'Recipient',
+			'CityRef' => 'f4890a83-8344-11df-884b-000c290fbeaa',
+			'CounterpartyType' => 'PrivatePerson',
+			'FirstName' => 'Иван',
+			'MiddleName' => 'Иванович',
+			'LastName' => 'Иванов',
+			'Phone' => '380501112233',
+		));
+		$this->assertTrue($result['success']);
+		return $result['data'][0]['Ref'];
+	}
+	
+	/**
+	 * Update for Counterparty model
+	 * 
+	 * @depends testCounterpartySave
+	 */
+	function testCounterpartyUpdate($ref) {
+		$result = $this->np->counterparty()->update(array(
+			'Ref' => $ref,
+			'CounterpartyProperty' => 'Recipient',
+			'CityRef' => 'a9280688-94c0-11e3-b441-0050568002cf',
+			'CounterpartyType' => 'PrivatePerson',
+			'FirstName' => 'Иван1',
+			'MiddleName' => 'Иванович1',
+			'LastName' => 'Иванов1',
+			'Phone' => '380501112234',
+		));
+		$this->assertTrue($result['success']);
+	}
+	
+	/**
+	 * Save for ContactPerson model
+	 * 
+	 * @depends testCounterpartySave
+	 */
+	function testContactPersonSave($ref) {
+		$result = $this->np->contactPerson()->save(array(
+			'CounterpartyRef' => $ref,
+			'FirstName' => 'Иван2',
+			'MiddleName' => 'Иванович2',
+			'LastName' => 'Иванов2',
+			'Phone' => '0501112255',
+		));
+		$this->assertTrue($result['success']);
+		return $result['data'][0]['Ref'];
+	}
+	
+	/**
+	 * Update for ContactPerson model
+	 * 
+	 * @depends testContactPersonSave
+	 * @depends testCounterpartySave
+	 */
+	function testContactPersonUpdate($ref, $counterpartyRef) {
+		$result = $this->np->contactPerson()->update(array(
+			'Ref' => $ref,
+			'CounterpartyRef' => $counterpartyRef,
+			'FirstName' => 'Иван3',
+			'MiddleName' => 'Иванович3',
+			'LastName' => 'Иванов3',
+			'Phone' => '0501112266',
+		));
+		$this->assertTrue($result['success']);
+	}
+	
+	/**
+	 * Delete for ContactPerson model
+	 * ContactPerson of natural counterparty cannot be removed
+	 * 
+	 * @depends testContactPersonSave
+	 */
+	function testContactPersonDelete($ref) {
+		$result = $this->np->contactPerson()->delete(array('Ref' => $ref));
+		// ContactPerson of natural counterparty cannot be removed, so there test assertFalse
+		$this->assertFalse($result['success']);
+	}
+	
+	/**
+	 * Delete for Counterparty model
+	 * 
+	 * @depends testCounterpartySave
+	 */
+	function testCounterpartyDelete($ref) {
+		$result = $this->np->counterparty()->delete(array('Ref' => $ref));
+		$this->assertTrue($result['success']);
 	}
 }
