@@ -77,7 +77,7 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 		$result = $this->np->getCities($cityPage, $cityRef, $cityName);
 		$this->assertTrue($result['success']);
 	}
-	
+
 	/**
 	 * Data provider for testGetCities
 	 */
@@ -87,6 +87,22 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 			array(1, '', ''),
 			array(0, '', 'a9280688-94c0-11e3-b441-0050568002cf'),
 		);
+	}
+		
+	/**
+	 * Get warehouses list by city id
+	 */
+	function testGetWarehouses() {
+		$result = $this->np->getWarehouses('a9280688-94c0-11e3-b441-0050568002cf');
+		$this->assertTrue($result['success']);
+	}
+	
+	/**
+	 * getStreet() 
+	 */
+	function testGetStreet() {
+		$result = $this->np->getStreet('a9280688-94c0-11e3-b441-0050568002cf');
+		$this->assertTrue($result['success']);
 	}
 	
 	/**

@@ -268,6 +268,36 @@ class NovaPoshtaApi2 {
 	}
 	
 	/**
+	 * Get warehouses by city
+	 * 
+	 * @param string $cityRef ID of city
+	 * @param int $page
+	 * @return mixed
+	 */
+	function getWarehouses($cityRef, $page = 0) {
+		return $this->request('Address', 'getWarehouses', array(
+			'CityRef' => $cityRef,
+			'Page' => $page,
+		));
+	}
+	
+	/**
+	 * Get streets list by city and/or search string
+	 * 
+	 * @param string $cityRef ID of city
+	 * @param string $findByString
+	 * @param int $page
+	 * @return mixed
+	 */
+	function getStreet($cityRef, $findByString = '', $page = 0) {
+		return $this->request('Address', 'getStreet', array(
+			'FindByString' => $findByString,
+			'CityRef' => $cityRef,
+			'Page' => $page,
+		));
+	}
+	
+	/**
 	 * Find current area in list of areas
 	 * 
 	 * @param array $areas List of arias, getted from file
