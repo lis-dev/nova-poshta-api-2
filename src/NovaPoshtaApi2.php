@@ -282,6 +282,42 @@ class NovaPoshtaApi2 {
 	}
 	
 	/**
+	 * Get warehouse by city name and warehouse's description
+	 * 
+	 * @param string $cityRef ID of city
+	 * @param int $page
+	 * @return mixed
+	 */
+	function getWarehouse($cityRef, $description = '') {
+		$warehouses = $this->getWarehouses($cityRef);
+		$data = array();
+		if (is_array($warehouses['data'])) {
+			if (count($warehouses['data']) == 1) {
+				$data = $warehouses['data'][0];
+			} elseif (count($warehouses['data']) > 1 AND $description) {
+				foreach ($warehouses['data'] as $warehouse) {
+					if (mb_stripos($warehouse['Description'], $description) !== FALSE
+					OR mb_stripos($warehouse['DescriptionRu'], $description) !== FALSE) {
+						$data = $warehouse;
+						break;
+					}
+				}
+			}
+		}
+		// Error
+		$error = ( ! $data) ? 'Warehouse was not found' : '';
+		// Return data in same format like NovaPoshta API
+		return $this->prepare(
+			array(
+				'success' => empty($error),
+				'data' => array($data),
+				'errors' => (array) $error,
+				'warnings' => array(),
+				'info' => array(),
+		)); 
+	}
+	
+	/**
 	 * Get streets list by city and/or search string
 	 * 
 	 * @param string $cityRef ID of city

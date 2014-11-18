@@ -414,4 +414,20 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 		$result = $this->np->cloneLoyaltyCounterpartySender('f4890a83-8344-11df-884b-000c290fbeaa');
 		$this->assertTrue($result['success']);
 	}
+	
+	/**
+	 * Get the warehouse by city id and description
+	 */
+	function testGetWarehouseManyInCity() {
+		$result = $this->np->getWarehouse('db5c88d1-391c-11dd-90d9-001a92567626', 'Відділення №2 (до 30 кг): вул. Дзержинського, 54');
+		$this->assertTrue($result['success']);
+	}
+	
+	/**
+	 * Get the warehouse by city id and description
+	 */
+	function testGetWarehouseOneInCity() {
+		$result = $this->np->getWarehouse('69da41b4-3f5d-11de-b509-001d92f78698');
+		$this->assertTrue($result['success']);
+	}
 }
