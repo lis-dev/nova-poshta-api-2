@@ -583,4 +583,23 @@ class NovaPoshtaApi2 {
 	function getCounterpartyByEDRPOU($edrpou, $cityRef) {
 		return $this->request('Counterparty', 'getCounterpartyByEDRPOU', array('EDRPOU' => $edrpou, 'cityRef' => $cityRef));
 	}
+
+	/**
+	 * Get price of delivery between two cities
+	 * 
+	 * @param string $citySender City ID
+	 * @param string $cityRecipient City ID
+	 * @param string $serviceType (DoorsDoors|DoorsWarehouse|WarehouseWarehouse|WarehouseDoors)
+	 * @param float $weight
+	 * @param float $cost
+	 */
+	function getDocumentPrice($citySender, $cityRecipient, $serviceType, $weight, $cost) {
+		return $this->request('InternetDocument', 'getDocumentPrice', array(
+			'CitySender' => $citySender,
+			'CityRecipient' => $cityRecipient,
+			'ServiceType' => $serviceType,
+			'Weight' => $weight,
+			'Cost' => $cost,
+		));
+	}
 }
