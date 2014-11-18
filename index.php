@@ -61,6 +61,24 @@ $result = $np->contactPerson()->update(array(
 	'Email' => 'some@mail.ru'
 ));
 */
+/*
+$result = $np->counterparty()->save(array(
+	'CounterpartyProperty' => 'Recipient',
+	'CityRef' => 'f4890a83-8344-11df-884b-000c290fbeaa',
+	'CounterpartyType' => 'Organization',
+	'FirstName' => 'ПАО КБ ПриватБанк',
+	'MiddleName' => '',
+	'LastName' => '',
+	'OwnershipForm' => '361b83db-886e-11e1-a146-0026b97ed48a',
+	'EDRPOU' => '14360570',
+));
+*/
 // $result = $np->contactPerson()->delete(array('Ref' => '29a5c4e8-6d43-11e4-acce-0050568002cf'));
+// $result = $np->getCounterpartyContactPersons('94122e79-6e72-11e4-acce-0050568002cf');
+// $result = $np->getCounterpartyOptions('94122e79-6e72-11e4-acce-0050568002cf');
+// $result = $np->cloneLoyaltyCounterpartySender('f4890a83-8344-11df-884b-000c290fbeaa');
+// $result = $np->getCounterparties(null, 1, '', '');
+// $result = $np->getCounterpartyByEDRPOU('12345678', 'f4890a83-8344-11df-884b-000c290fbeaa');
+
 // Get result
 var_export($result);

@@ -412,4 +412,75 @@ class NovaPoshtaApi2 {
 	function save($params) {
 		return $this->request($this->model, 'save', $params);
 	}
+	
+	/**
+	 * getCounterparties() function of model Counterparty
+	 * 
+	 * @param string $counterpartyProperty Type of Counterparty (Sender|Recipient)
+	 * @param int $page Page number
+	 * @param string $findByString String to search
+	 * @param string $cityRef City ID
+	 * @return mixed
+	 */
+	function getCounterparties($counterpartyProperty = 'Recipient', $page = NULL, $findByString = NULL, $cityRef = NULL) {
+		// Any param can be skipped
+		$params = array();
+		$params['CounterpartyProperty'] = $counterpartyProperty ? $counterpartyProperty : 'Recipient';
+		$page AND $params['Page'] = $page;
+		$findByString AND $params['FindByString'] = $findByString;
+		$cityRef AND $params['CityRef'] = $cityRef;
+		return $this->request('Counterparty', 'getCounterparties', $params);
+	}
+	
+	/**
+	 * cloneLoyaltyCounterpartySender() function of model Counterparty
+	 * 
+	 * @param string $cityRef City ID
+	 * @return mixed
+	 */
+	function cloneLoyaltyCounterpartySender($cityRef) {
+		return $this->request('Counterparty', 'cloneLoyaltyCounterpartySender', array('CityRef' => $cityRef));
+	}
+	
+	/**
+	 * getCounterpartyContactPersons() function of model Counterparty
+	 * 
+	 * @param string $ref Counterparty ref
+	 * @return mixed
+	 */
+	function getCounterpartyContactPersons($ref) {
+		return $this->request('Counterparty', 'getCounterpartyContactPersons', array('Ref' => $ref));
+	}
+	
+	/**
+	 * getCounterpartyAddresses() function of model Counterparty
+	 * 
+	 * @param string $ref Counterparty ref
+	 * @param int $page
+	 * @return mixed
+	 */
+	function getCounterpartyAddresses($ref, $page = 0) {
+		return $this->request('Counterparty', 'getCounterpartyAddresses', array('Ref' => $ref, 'Page' => $page));
+	}
+	
+	/**
+	 * getCounterpartyOptions() function of model Counterparty
+	 * 
+	 * @param string $ref Counterparty ref
+	 * @return mixed
+	 */
+	function getCounterpartyOptions($ref) {
+		return $this->request('Counterparty', 'getCounterpartyOptions', array('Ref' => $ref));
+	}
+	
+	/**
+	 * getCounterpartyByEDRPOU() function of model Counterparty
+	 * 
+	 * @param string $edrpou EDRPOU code
+	 * @param string $cityRef City ID
+	 * @return mixed
+	 */
+	function getCounterpartyByEDRPOU($edrpou, $cityRef) {
+		return $this->request('Counterparty', 'getCounterpartyByEDRPOU', array('EDRPOU' => $edrpou, 'cityRef' => $cityRef));
+	}
 }

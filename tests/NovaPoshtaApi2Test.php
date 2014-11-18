@@ -198,7 +198,7 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	}
 	
 	/**
-	 * Save for Counterparty model
+	 * Save method of Counterparty model
 	 */
 	function testCounterpartySave() {
 		$result = $this->np->counterparty()->save(array(
@@ -212,6 +212,34 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 		));
 		$this->assertTrue($result['success']);
 		return $result['data'][0]['Ref'];
+	}
+	
+	/**
+	 * Save method of Counterparty model for Organization
+	 * 
+	 * TODO Test always is failed with error "Organization does not exists or incorrect EDRPOU'"
+	 * Uncomment this and all depends when this will be fixed
+	 */
+	function testCounterpartyOrganizationSave() {
+		$result = $this->np->counterparty()->save(array(
+			'CounterpartyProperty' => 'Recipient',
+			'CityRef' => 'f4890a83-8344-11df-884b-000c290fbeaa',
+			'CounterpartyType' => 'Organization',
+			'FirstName' => 'ООО Рога и Копыта',
+			'MiddleName' => '',
+			'LastName' => '',
+			'Phone' => '80501112233',
+			'OwnershipForm' => '7f0f351d-2519-11df-be9a-000c291af1b3',
+			'EDRPOU' => '12345678',
+		));
+		// $this->assertTrue($result['success']);
+		/*
+		return array(
+			'Ref' => $result['data'][0]['Ref'],
+			'EDRPOU' => $result['data'][0]['EDRPOU'],
+			'CityRef' => $result['data'][0]['CityRef'],
+		);
+		*/
 	}
 	
 	/**
@@ -281,12 +309,93 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	}
 	
 	/**
+	 * getCounterparties() of Counterparty model
+	 * 
+	 * @dataProvider getCounterpartiesData
+	 */
+	function testGetCounterparties($counterpartyProperty, $page, $findByString, $cityRef) {
+		$result = $this->np->getCounterparties($counterpartyProperty, $page, $findByString, $cityRef);
+		$this->assertTrue($result['success']);
+	}
+	
+	/**
+	 * Data for testGetCounterparties()
+	 */
+	function getCounterpartiesData() {
+		return array(
+			array('Sender', '', '', ''),
+			array('', 1, '', ''),
+			array('', '', 'Иван', ''),
+			array('', '', '', 'f4890a83-8344-11df-884b-000c290fbeaa'),
+		);
+	}
+
+	/**
+	 * testGetCounterpartyContactPersons() of Counterparty model
+	 * 
+	 * @depends testCounterpartySave
+	 */
+	function testGetCounterpartyContactPersons($ref) {
+		$result = $this->np->getCounterpartyContactPersons($ref);
+		$this->assertTrue($result['success']);
+	}
+	
+	/**
+	 * getCounterpartyOptions() of Counterparty model
+	 * 
+	 * @depends testCounterpartySave
+	 */
+	function testGetCounterpartyOptions($ref) {
+		$result = $this->np->getCounterpartyOptions($ref);
+		$this->assertTrue($result['success']);
+	}
+	
+	/**
+	 * getCounterpartyAddresses() of Counterparty model
+	 * 
+	 * @depends testCounterpartySave
+	 */
+	function testGetCounterpartyAddresses($ref) {
+		$result = $this->np->getCounterpartyAddresses($ref);
+		$this->assertTrue($result['success']);
+	}
+	
+	/**
+	 * getCounterpartyByEDRPOU() of Counterparty model
+	 * 
+	 * TODO Alter test when testCounterpartyOrganizationSave will works correctly
+	 * -- depends testCounterpartyOrganizationSave
+	 */
+	function testGetCounterpartyByEDRPOU() {
+		$result = $this->np->getCounterpartyByEDRPOU('12345678', 'f4890a83-8344-11df-884b-000c290fbeaa');
+		// $this->assertEmpty($result['success']);
+	}
+
+	/**
+	 * Delete organization for Counterparty model
+	 * 
+	 * @depends testCounterpartyOrganizationSave
+	function testCounterpartyOrganizationDelete($params) {
+		$result = $this->np->counterparty()->delete(array('Ref' => $params['Ref']));
+		$this->assertTrue($result['success']);
+	}
+	 */
+	
+	/**
 	 * Delete for Counterparty model
 	 * 
 	 * @depends testCounterpartySave
 	 */
 	function testCounterpartyDelete($ref) {
 		$result = $this->np->counterparty()->delete(array('Ref' => $ref));
+		$this->assertTrue($result['success']);
+	}
+	
+	/**
+	 * cloneLoyaltyCounterpartySender() of Counterparty model
+	 */
+	function testCloneLoyaltyCounterpartySender() {
+		$result = $this->np->cloneLoyaltyCounterpartySender('f4890a83-8344-11df-884b-000c290fbeaa');
 		$this->assertTrue($result['success']);
 	}
 }
