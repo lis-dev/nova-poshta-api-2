@@ -18,7 +18,7 @@ $np = new NovaPoshtaApi2($key);
 // Get method from Common Model of NovaPoshta
 // $result = $np->getDocumentStatuses();
 /*
-$result = $np->counterparty()->save(array(
+$result = $np->model('counterparty')->save(array(
 	'CounterpartyProperty' => 'Recipient',
 	'CityRef' => 'f4890a83-8344-11df-884b-000c290fbeaa',
 	'CounterpartyType' => 'PrivatePerson',
@@ -29,7 +29,7 @@ $result = $np->counterparty()->save(array(
 ));
 */
 /*
-$result = $np->counterparty()->update(array(
+$result = $np->model('counterparty')->update(array(
 	'Ref' => '3f9c9486-6cd6-11e4-acce-0050568002cf',
 	'CounterpartyProperty' => 'Recipient',
 	'CityRef' => 'f4890a83-8344-11df-884b-000c290fbeaa',
@@ -40,9 +40,9 @@ $result = $np->counterparty()->update(array(
 	'Phone' => '380501112234',
 ));
 */
-// $result = $np->counterparty()->delete(array('Ref' => '3f9c94b0-6cd6-11e4-acce-0050568002cf'));
+// $result = $np->model('counterparty')->delete(array('Ref' => '3f9c94b0-6cd6-11e4-acce-0050568002cf'));
 /*
-$result = $np->contactPerson()->save(array(
+$result = $np->model('ContactPerson')->save(array(
 	'CounterpartyRef' => '3f9c94c1-6cd6-11e4-acce-0050568002cf',
 	'FirstName' => 'Иван2-1',
 	'MiddleName' => 'Иванович2-1',
@@ -51,7 +51,7 @@ $result = $np->contactPerson()->save(array(
 ));
 */
 /*
-$result = $np->contactPerson()->update(array(
+$result = $np->model('ContactPerson')->update(array(
 	'Ref' => '29a5c4e8-6d43-11e4-acce-0050568002cf',
 	'CounterpartyRef' => '3f9c94c1-6cd6-11e4-acce-0050568002cf',
 	'FirstName' => 'Иван3',
@@ -62,7 +62,7 @@ $result = $np->contactPerson()->update(array(
 ));
 */
 /*
-$result = $np->counterparty()->save(array(
+$result = $np->model('counterparty')->save(array(
 	'CounterpartyProperty' => 'Recipient',
 	'CityRef' => 'f4890a83-8344-11df-884b-000c290fbeaa',
 	'CounterpartyType' => 'Organization',
@@ -73,7 +73,7 @@ $result = $np->counterparty()->save(array(
 	'EDRPOU' => '14360570',
 ));
 */
-// $result = $np->contactPerson()->delete(array('Ref' => '29a5c4e8-6d43-11e4-acce-0050568002cf'));
+// $result = $np->model('ContactPerson')->delete(array('Ref' => '29a5c4e8-6d43-11e4-acce-0050568002cf'));
 // $result = $np->getCounterpartyContactPersons('94122e79-6e72-11e4-acce-0050568002cf');
 // $result = $np->getCounterpartyOptions('94122e79-6e72-11e4-acce-0050568002cf');
 // $result = $np->cloneLoyaltyCounterpartySender('f4890a83-8344-11df-884b-000c290fbeaa');

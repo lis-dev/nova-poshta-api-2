@@ -35,6 +35,16 @@ class NovaPoshtaApi2 {
 	 * @var string $model Set current model for methods save(), update(), delete()
 	 */
 	protected $model = 'Common';
+	
+	/**
+	 * @var string $method Set method of current model
+	 */
+	protected $method;
+	
+	/**
+	 * @var array $params Set params of current method of current model
+	 */
+	protected $params;
 
 	/**
 	 * Default constructor
@@ -47,7 +57,7 @@ class NovaPoshtaApi2 {
 		return $this	
 			->setKey($key)
 			->setLanguage($language)
-			->common();
+			->model('Common');
 	}
 	
 	/**
@@ -151,7 +161,7 @@ class NovaPoshtaApi2 {
 	 * @param string $method Method name
 	 * @param array $params Required params
 	 */
-	function request($model, $method, $params = NULL) {
+	private function request($model, $method, $params = NULL) {
 		// Get required URL
 		$url = $this->format == 'xml'
 			? 'https://api.novaposhta.ua/v2.0/xml/'
@@ -179,6 +189,56 @@ class NovaPoshtaApi2 {
 		$result = curl_exec($ch);
 		curl_close($ch);
 		return $this->prepare($result);
+	}
+
+	/**
+	 * Set current model and empties method and params properties
+	 * 
+	 * @param string $model
+	 * @return mixed
+	 */
+	function model($model = '') {
+		if ( ! $model) 
+			return $this->model;
+
+		$this->model = $model;
+		$this->method = NULL;
+		$this->params = NULL;
+		return $this;
+	}
+	/**
+	 * Set method of current model property and empties params properties
+	 * 
+	 * @param string $method
+	 * @return mixed
+	 */
+	function method($method = '') {
+		if ( ! $method) 
+			return $this->method;
+
+		$this->method = $method;
+		$this->params = NULL;
+		return $this;
+	}
+	
+	/**
+	 * Set params of current method/property property
+	 * 
+	 * @param array $params
+	 * @return mixed
+	 */
+	function params($params) {
+		$this->params = $params;
+		return $this;
+	}
+	
+	/**
+	 * Execute request to NovaPoshta API
+	 * 
+	 * @return mixed
+	 */
+	function execute() {
+		return $this->request($this->model, $this->method, $this->params);
 	}
 	
 	/**
@@ -341,38 +401,12 @@ class NovaPoshtaApi2 {
 		);
 		// Call method of Common model
 		if (in_array($method, $common_model_method)) {
-			return $this->request('Common', $method);
+			return $this
+				->model('Common')
+				->method($method)
+				->params(NULL)
+				->execute();
 		}
-	}
-	
-	/**
-	 * Set current model to Common
-	 * 
-	 * @return this
-	 */
-	function common() {
-		$this->model = 'Common';
-		return $this;
-	}
-	
-	/**
-	 * Set current model to ContactPerson
-	 * 
-	 * @return this
-	 */
-	function contactPerson() {
-		$this->model = 'ContactPerson';
-		return $this;
-	}
-	
-	/**
-	 * Set current model to Counterparty
-	 * 
-	 * @return this
-	 */
-	function counterparty() {
-		$this->model = 'Counterparty';
-		return $this;
 	}
 	
 	/**

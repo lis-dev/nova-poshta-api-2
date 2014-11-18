@@ -201,7 +201,7 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	 * Save method of Counterparty model
 	 */
 	function testCounterpartySave() {
-		$result = $this->np->counterparty()->save(array(
+		$result = $this->np->model('Counterparty')->save(array(
 			'CounterpartyProperty' => 'Recipient',
 			'CityRef' => 'f4890a83-8344-11df-884b-000c290fbeaa',
 			'CounterpartyType' => 'PrivatePerson',
@@ -221,7 +221,7 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	 * Uncomment this and all depends when this will be fixed
 	 */
 	function testCounterpartyOrganizationSave() {
-		$result = $this->np->counterparty()->save(array(
+		$result = $this->np->model('Counterparty')->save(array(
 			'CounterpartyProperty' => 'Recipient',
 			'CityRef' => 'f4890a83-8344-11df-884b-000c290fbeaa',
 			'CounterpartyType' => 'Organization',
@@ -248,7 +248,7 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	 * @depends testCounterpartySave
 	 */
 	function testCounterpartyUpdate($ref) {
-		$result = $this->np->counterparty()->update(array(
+		$result = $this->np->model('Counterparty')->update(array(
 			'Ref' => $ref,
 			'CounterpartyProperty' => 'Recipient',
 			'CityRef' => 'a9280688-94c0-11e3-b441-0050568002cf',
@@ -267,7 +267,7 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	 * @depends testCounterpartySave
 	 */
 	function testContactPersonSave($ref) {
-		$result = $this->np->contactPerson()->save(array(
+		$result = $this->np->model('ContactPerson')->save(array(
 			'CounterpartyRef' => $ref,
 			'FirstName' => 'Иван2',
 			'MiddleName' => 'Иванович2',
@@ -285,7 +285,7 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	 * @depends testCounterpartySave
 	 */
 	function testContactPersonUpdate($ref, $counterpartyRef) {
-		$result = $this->np->contactPerson()->update(array(
+		$result = $this->np->model('ContactPerson')->update(array(
 			'Ref' => $ref,
 			'CounterpartyRef' => $counterpartyRef,
 			'FirstName' => 'Иван3',
@@ -303,7 +303,7 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	 * @depends testContactPersonSave
 	 */
 	function testContactPersonDelete($ref) {
-		$result = $this->np->contactPerson()->delete(array('Ref' => $ref));
+		$result = $this->np->model('ContactPerson')->delete(array('Ref' => $ref));
 		// ContactPerson of natural counterparty cannot be removed, so there test assertFalse
 		$this->assertFalse($result['success']);
 	}
@@ -376,7 +376,7 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	 * 
 	 * @depends testCounterpartyOrganizationSave
 	function testCounterpartyOrganizationDelete($params) {
-		$result = $this->np->counterparty()->delete(array('Ref' => $params['Ref']));
+		$result = $this->np->model('Counterparty')->delete(array('Ref' => $params['Ref']));
 		$this->assertTrue($result['success']);
 	}
 	 */
@@ -387,7 +387,7 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	 * @depends testCounterpartySave
 	 */
 	function testCounterpartyDelete($ref) {
-		$result = $this->np->counterparty()->delete(array('Ref' => $ref));
+		$result = $this->np->model('Counterparty')->delete(array('Ref' => $ref));
 		$this->assertTrue($result['success']);
 	}
 	
