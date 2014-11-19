@@ -490,4 +490,52 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 		$this->assertTrue($result['success']);
 		return $result['data'][0]['Ref'];
 	}
+	
+	/**
+	 * printDocument()
+	 * 
+	 * @depends testNewInternetDocument
+	 */
+	function testPrintDocument($ref) {
+		/*
+		There is unexsisted DocumentRef, because if will real id there will not
+		any chance delete this tested document 
+		*/
+		$result = $this->np->printDocument('123');
+		$this->assertTrue($result['success']);
+	}
+
+	/**
+	 * printDocument()
+	 * 
+	 * @depends testNewInternetDocument
+	 */
+	function testPrintDocumentGetLink($ref) {
+		$result = $this->np->printDocument($ref, 'html_link');
+		$this->assertTrue($result['success']);
+	}
+	
+	/**
+	 * printMarkings()
+	 * 
+	 * @depends testNewInternetDocument
+	 */
+	function testPrintMarkings($ref) {
+		/*
+		There is unexsisted DocumentRef, because if will real id there will not
+		any chance delete this tested document 
+		*/
+		$result = $this->np->printMarkings('123');
+		$this->assertTrue($result['success']);
+	}
+	
+	/**
+	 * printMarkings()
+	 * 
+	 * @depends testNewInternetDocument
+	 */
+	function testPrintMarkingsGetLink($ref) {
+		$result = $this->np->printMarkings($ref, 'link_html');
+		$this->assertTrue($result['success']);
+	}
 }

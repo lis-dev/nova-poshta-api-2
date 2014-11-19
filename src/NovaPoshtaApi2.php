@@ -716,4 +716,59 @@ class NovaPoshtaApi2 {
 		// Creating new Internet Document
 		return $this->model('InternetDocument')->save($paramsInternetDocument);
 	}
+
+	/**
+	 * Get only link on internet document for printing
+	 * 
+	 * @param string $method Called method of NovaPoshta API
+	 * @param array|string $documentRefs Array of Documents IDs
+	 * @param string $type (html_link|pdf_link)
+	 * @return mixed
+	 */
+	protected function printGetLink($method, $documentRefs) {
+		$data = 'https://my.novaposhta.ua/orders/printMarkings/orders[]/'.implode(',', $documentRefs)
+				.'/type/'.str_replace('_link', '', $type)
+				.'/apiKey/'.$this->key;
+		// Return data in same format like NovaPoshta API
+		return $this->prepare(
+			array(
+				'success' => TRUE,
+				'data' => array($data),
+				'errors' => array(),
+				'warnings' => array(),
+				'info' => array(),
+		));
+	}
+
+	/**
+	 * printDocument method of InternetDocument model 
+	 * 
+	 * @param array|string $documentRefs Array of Documents IDs
+	 * @param string $type (pdf|html|html_link|pdf_link)
+	 * @return mixed
+	 */
+	function printDocument($documentRefs, $type = 'html') {
+		$documentRefs = (array) $documentRefs;
+		// If needs link
+		if ($type == 'html_link' OR $type == 'pdf_link')
+			return $this->printGetLink('printDocument', $documentRefs, $type);
+		// If needs data
+		return $this->request('InternetDocument', 'printDocument', array('DocumentRefs' => $documentRefs, 'Type' => $type));
+	}
+
+	/**
+	 * printMarkings method of InternetDocument model 
+	 * 
+	 * @param array|string $documentRefs Array of Documents IDs
+	 * @param string $type (pdf|new_pdf|new_html|old_html|html_link|pdf_link)
+	 * @return mixed
+	 */
+	function printMarkings($documentRefs, $type = 'new_html') {
+		$documentRefs = (array) $documentRefs;
+		// If needs link
+		if ($type == 'html_link' OR $type == 'pdf_link')
+			return $this->printGetLink('printMarkings', $documentRefs, $type);
+		// If needs data
+		return $this->request('InternetDocument', 'printMarkings', array('DocumentRefs' => $documentRefs, 'Type' => $type));
+	}
 }
