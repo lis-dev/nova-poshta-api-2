@@ -285,7 +285,7 @@ class NovaPoshtaApi2 {
 	 * Get warehouse by city name and warehouse's description
 	 * 
 	 * @param string $cityRef ID of city
-	 * @param int $page
+	 * @param string $description Description like in getted by getWarehouses()
 	 * @return mixed
 	 */
 	function getWarehouse($cityRef, $description = '') {
@@ -434,7 +434,7 @@ class NovaPoshtaApi2 {
 		return $this->prepare(
 			array(
 				'success' => empty($error),
-				'data' => $data,
+				'data' => array($data),
 				'errors' => (array) $error,
 				'warnings' => array(),
 				'info' => array(),
@@ -592,6 +592,7 @@ class NovaPoshtaApi2 {
 	 * @param string $serviceType (DoorsDoors|DoorsWarehouse|WarehouseWarehouse|WarehouseDoors)
 	 * @param float $weight
 	 * @param float $cost
+	 * @return mixed
 	 */
 	function getDocumentPrice($citySender, $cityRecipient, $serviceType, $weight, $cost) {
 		return $this->request('InternetDocument', 'getDocumentPrice', array(
