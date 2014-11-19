@@ -603,4 +603,117 @@ class NovaPoshtaApi2 {
 			'Cost' => $cost,
 		));
 	}
+
+	/**
+	 * Check required fields for new InternetDocument and set defaults
+	 * 
+	 * @param array & $counterparty Sender of Recipient info
+	 * @return void
+	 */
+	protected function checkInternetDocumentCounterparty(array & $counterparty) {
+		// Check required fields
+		if ( ! $counterparty['FirstName'])
+			throw new Exception('FirstName is required filed for sender and recipient');
+		if ( ! $counterparty['MiddleName'])
+			throw new Exception('MiddleName is required filed for sender and recipient');
+		if ( ! $counterparty['LastName'])
+			throw new Exception('LastName is required filed for sender and recipient');
+		if ( ! $counterparty['Phone'])
+			throw new Exception('Phone is required filed for sender and recipient');
+		if ( ! $counterparty['City'])
+			throw new Exception('City is required filed for sender and recipient');
+		if ( ! $counterparty['Region'])
+			throw new Exception('Region is required filed for sender and recipient');
+	
+		// Set defaults
+		if ( ! $counterparty['CounterpartyType']) {
+			$counterparty['CounterpartyType'] = 'PrivatePerson';
+		}
+	}
+	
+	/**
+	 * Check required params for new InternetDocument and set defaults
+	 * 
+	 * @param array & $params 
+	 * @return void
+	 */
+	protected function checkInternetDocumentParams(array & $params) {
+		if ( ! $params['Description'])
+			throw new Exception('Description is required filed for new Internet document');
+		if ( ! $params['Weight'])
+			throw new Exception('Weight is required filed for new Internet document');
+		if ( ! $params['Cost'])
+			throw new Exception('Cost is required filed for new Internet document');
+		( ! $params['DateTime']) AND $params['DateTime'] = date('d.m.Y');
+		( ! $params['ServiceType']) AND $params['ServiceType'] = 'WarehouseWarehouse';
+		( ! $params['PaymentMethod']) AND $params['PaymentMethod'] = 'Cash';
+		( ! $params['PayerType']) AND $params['PayerType'] = 'Recipient';
+		( ! $params['SeatsAmount']) AND $params['SeatsAmount'] = '1';
+		( ! $params['CargoType']) AND $params['CargoType'] = 'Cargo';
+		( ! $params['VolumeGeneral']) AND $params['VolumeGeneral'] = '0.0004';
+	}
+	
+	/**
+	 * Create Internet Document by 
+	 * 
+	 * @param array $sender Sender info. 
+	 * 	Required:
+	 * 		'FirstName' => String, 'MiddleName' => String,
+	 * 		'LastName' => String, 'Phone' => '000xxxxxxx', 'City' => String (City name), 'Region' => String (Region name), 
+	 * 		'Warehouse' => String (Description from getWarehouses))
+	 * @param array $recipient Recipient info, same like $sender param
+	 * @param array $params Additional params of Internet Document
+	 *  Required:
+	 * 		'Description' => String, 'Weight' => Float, 'Cost' => Float
+	 *  Recommended:
+	 * 		'VolumeGeneral' => Float (default = 0.004), 'SeatsAmount' => Int (default = 1),
+	 * 		'PayerType' => (Sender|Recipient - default), 'PaymentMethod' => (NonCash|Cash - default)
+	 * 		'ServiceType' => (DoorsDoors|DoorsWarehouse|WarehouseDoors|WarehouseWarehouse - default) 
+	 * 		'CargoType' => String
+	 * @param mixed
+	 */
+	function newInternetDocument($sender, $recipient, $params) {
+		// Check for required params and set defaults
+		$this->checkInternetDocumentCounterparty($sender);
+		$this->checkInternetDocumentCounterparty($recipient);
+		$this->checkInternetDocumentParams($params);
+		// Prepare sender data
+		$sender['CounterpartyProperty'] = 'Sender';
+		$sender['SendersPhone'] = $sender['Phone'];
+		if ( ! $sender['CitySender']) {
+			$senderCity = $this->getCity($sender['City'], $sender['Region']);
+			$sender['CitySender'] = $senderCity['data'][0]['Ref'];
+		}
+		$sender['CityRef'] = $sender['CitySender'];
+		if ( ! $sender['SenderAddress'] AND $sender['CitySender'] AND $sender['Warehouse']) {
+			$senderWarehouse = $this->getWarehouse($sender['CitySender'], $sender['Warehouse']);
+			$sender['SenderAddress'] = $senderWarehouse['data'][0]['Ref'];
+		}
+		if ( ! $sender['Sender']) {
+			$senderCounterparty = $this->model('Counterparty')->save($sender);
+			$sender['Sender'] = $senderCounterparty['data'][0]['Ref'];
+			$sender['ContactSender'] = $senderCounterparty['data'][0]['ContactPerson']['data'][0]['Ref'];
+		}
+		// Prepare recipient data
+		$recipient['CounterpartyProperty'] = 'Recipient';
+		$recipient['RecipientsPhone'] = $recipient['Phone'];
+		if ( ! $recipient['CityRecipient']) {
+			$recipientCity = $this->getCity($recipient['City'], $recipient['Region']);
+			$recipient['CityRecipient'] = $recipientCity['data'][0]['Ref'];
+		}
+		$recipient['CityRef'] = $recipient['CityRecipient'];
+		if ( ! $recipient['RecipientAddress']) {
+			$recipientWarehouse = $this->getWarehouse($recipient['CityRecipient'], $recipient['Warehouse']);
+			$recipient['RecipientAddress'] = $recipientWarehouse['data'][0]['Ref'];
+		}
+		if ( ! $recipient['Recipient']) {
+			$recipientCounterparty = $this->model('Counterparty')->save($recipient);
+			$recipient['Recipient'] = $recipientCounterparty['data'][0]['Ref'];
+			$recipient['ContactRecipient'] = $recipientCounterparty['data'][0]['ContactPerson']['data'][0]['Ref'];
+		}
+		// Full params is merge of arrays $sender, $recipient, $params
+		$paramsInternetDocument = array_merge($sender, $recipient, $params);
+		// Creating new Internet Document
+		return $this->model('InternetDocument')->save($paramsInternetDocument);
+	}
 }

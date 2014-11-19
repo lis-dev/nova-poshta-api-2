@@ -18,6 +18,14 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	 * Instace of tested class
 	 */
 	private $np;
+	
+	/**
+	 * Set up before class
+	 */
+	static function setUpBeforeClass() {
+		// Disable notices
+		error_reporting(E_ALL ^ E_NOTICE);
+	}
 	/**
 	 * Set up before each test
 	 */
@@ -437,5 +445,49 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	function testGetDocumentPrice() {
 		$result = $this->np->getDocumentPrice('db5c88d1-391c-11dd-90d9-001a92567626', '8d5a980d-391c-11dd-90d9-001a92567626', 'WarehouseWarehouse', 50, 0.5);
 		$this->assertTrue($result['success']);
+	}
+	
+	/**
+	 * newInternetDocument()
+	 * 
+	 * This test must be called much before deleting test to spend 
+	 *  much time to process document on server side of NovaPoshtaAPI 
+	 */
+	function testNewInternetDocument() {
+		$result = $this->np->newInternetDocument(
+			array(
+				'FirstName' => 'Петр',
+				'MiddleName' => 'Петрович',
+				'LastName' => 'Петров',
+				'Phone' => '0631112233',
+				'City' => 'Белгород-Днестровский',
+				'Region' => 'Одесская',
+				'Warehouse' => 'Отделение №2 (до 30 кг): ул. Дзержинского, 54',
+			),
+			array(
+				'FirstName' => 'Сидор',
+				'MiddleName' => 'Сидорович',
+				'LastName' => 'Сиродов',
+				'Phone' => '0509998877',
+				'City' => 'Киев',
+				'Region' => 'Киевская',
+				'Warehouse' => 'Отделение №3: ул. Калачевская, 13 (Старая Дарница)',
+			),
+			array(
+				'DateTime' => date('d.m.Y', time() + 84600),
+				'ServiceType' => 'WarehouseWarehouse',
+				'PaymentMethod' => 'Cash',
+				'PayerType' => 'Recipient',
+				'Cost' => '500',
+				'SeatsAmount' => '1',
+				'Description' => 'Спутник',
+				'CargoType' => 'Cargo',
+				'Weight' => '10',
+				'VolumeGeneral' => '0.5',
+			)
+		);
+		
+		$this->assertTrue($result['success']);
+		return $result['data'][0]['Ref'];
 	}
 }
