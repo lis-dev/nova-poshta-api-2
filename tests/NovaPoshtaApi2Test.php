@@ -443,7 +443,26 @@ class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
 	 * getDocumentPrice()
 	 */
 	function testGetDocumentPrice() {
-		$result = $this->np->getDocumentPrice('db5c88d1-391c-11dd-90d9-001a92567626', '8d5a980d-391c-11dd-90d9-001a92567626', 'WarehouseWarehouse', 50, 0.5);
+		$result = $this->np->getDocumentPrice(
+			'db5c88d1-391c-11dd-90d9-001a92567626',
+			'8d5a980d-391c-11dd-90d9-001a92567626',
+			'WarehouseWarehouse',
+			50,
+			0.5
+		);
+		$this->assertTrue($result['success']);
+	}
+	
+	/**
+	 * getDocumentDeliveryDate()
+	 */
+	function testGetDocumentDeliveryDate() {
+		$result = $this->np->getDocumentDeliveryDate(
+			'db5c88d1-391c-11dd-90d9-001a92567626',
+			'8d5a980d-391c-11dd-90d9-001a92567626',
+			'WarehouseWarehouse',
+			date('d.m.Y')
+		);
 		$this->assertTrue($result['success']);
 	}
 	

@@ -605,6 +605,24 @@ class NovaPoshtaApi2 {
 	}
 
 	/**
+	 * Get approximately date of delivery between two cities
+	 * 
+	 * @param string $citySender City ID
+	 * @param string $cityRecipient City ID
+	 * @param string $serviceType (DoorsDoors|DoorsWarehouse|WarehouseWarehouse|WarehouseDoors)
+	 * @param string $dateTime Date of shipping
+	 * @return mixed
+	 */
+	function getDocumentDeliveryDate($citySender, $cityRecipient, $serviceType, $dateTime) {
+		return $this->request('InternetDocument', 'getDocumentDeliveryDate', array(
+			'CitySender' => $citySender,
+			'CityRecipient' => $cityRecipient,
+			'ServiceType' => $serviceType,
+			'DateTime' => $dateTime,
+		));
+	}
+
+	/**
 	 * Check required fields for new InternetDocument and set defaults
 	 * 
 	 * @param array & $counterparty Sender of Recipient info
