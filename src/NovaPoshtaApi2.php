@@ -647,9 +647,9 @@ class NovaPoshtaApi2 {
 			throw new Exception('LastName is required filed for sender and recipient');
 		if ( ! $counterparty['Phone'])
 			throw new Exception('Phone is required filed for sender and recipient');
-		if ( ! $counterparty['City'])
+		if ( ! ($counterparty['City'] OR $counterparty['CityRef']))
 			throw new Exception('City is required filed for sender and recipient');
-		if ( ! $counterparty['Region'])
+		if ( ! ($counterparty['Region'] OR $counterparty['CityRef']))
 			throw new Exception('Region is required filed for sender and recipient');
 	
 		// Set defaults
