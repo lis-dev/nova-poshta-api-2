@@ -17,6 +17,11 @@ class NovaPoshtaApi2 {
 	protected $key;
 	
 	/**
+	 * @var bool $throwErrors Throw exceptions when in response is error
+	 */
+	protected $throwErrors = FALSE;
+	
+	/**
 	 * @var string $format Format of returned data - array, json, xml
 	 */
 	protected $format = 'array';
@@ -51,9 +56,11 @@ class NovaPoshtaApi2 {
 	 * 
 	 * @param string $key NovaPoshta API key
 	 * @param string $language Default Language
+	 * @param bool $throwErrors Throw request errors as Exceptions
 	 * @return NovaPoshtaApi2 
 	 */
-	function __construct($key, $language = 'ru') {
+	function __construct($key, $language = 'ru', $throwErrors = FALSE) {
+		$this->throwErrors = $throwErrors;
 		return $this	
 			->setKey($key)
 			->setLanguage($language)
@@ -129,9 +136,13 @@ class NovaPoshtaApi2 {
 	private function prepare($data) {
 		//Returns array
 		if ($this->format == 'array') {
-			return is_array($data)
+			$result = is_array($data)
 				? $data
 				: json_decode($data, 1);
+			// If error exists, throw Exception
+			if ($this->throwErrors AND $result['errors'])
+				throw new Exception(implode("\n", $result['errors']));
+			return $result;
 		}
 		// Returns json or xml document
 		return $data;
@@ -305,7 +316,7 @@ class NovaPoshtaApi2 {
 			}
 		}
 		// Error
-		$error = ( ! $data) ? 'Warehouse was not found' : '';
+		( ! $data) AND $error = 'Warehouse was not found';
 		// Return data in same format like NovaPoshta API
 		return $this->prepare(
 			array(
@@ -373,7 +384,6 @@ class NovaPoshtaApi2 {
 	function getArea($findByString = '', $ref = '') {
 		// Load areas list from file
 		empty($this->areas) AND $this->areas = include dirname(__FILE__).'/NovaPoshtaApi2Areas.php';
-		$error = '';
 		$data = $this->findArea($this->areas, $findByString, $ref);
 		// Error
 		empty($data) AND $error = 'Area was not found';
@@ -419,7 +429,6 @@ class NovaPoshtaApi2 {
 	 * @return array City's data
 	 */
 	function getCity($cityName, $areaName = '') {
-		$error = '';
 		// Get cities by name
 		$cities = $this->getCities(0, $cityName);
 		if (is_array($cities['data'])) {
