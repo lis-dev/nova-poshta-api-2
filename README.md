@@ -2,14 +2,17 @@
 Класс предоставляет доступ к функциям API 2.0 службы доставки Новая Почта
 
 # Подготовка
-Для использования API необходимо 
+Для использования API необходимо: 
 * зарегистрироваться на сайте [Новой Почты](http://novaposhta.ua)
 * На [странице настроек](https://my.novaposhta.ua/settings/index#apikeys) в личном кабинете сгенерировать ключ для работы с API 
 
 После получения ключа API предоставляется возможность использовать все методы класса [официальной из документации](https://my.novaposhta.ua/data/API2-071114-1736-56.pdf)
 
 # Форматы данных
-Для входящих данных используются PHP массивы, ответ сервера может быть получен как PHP массив, JSON, XML
+Для входящих данных используются PHP массивы, ответ сервера может быть получен в формате:
+* как PHP массив
+* JSON
+* XML
 
 # Использование 
 ## Создание экземпляра класса
@@ -99,41 +102,41 @@ $result = $np
 	->execute();
 ```
 # Реализованные методы
-__construct()
-setKey()
-getKey()
-setLanguage()
-getLanguage()
-setFormat()
-getFormat()
-model()
-method()
-params()
-execute()
-documentsTracking()
-getCities()
-getWarehouses()
-getWarehouse()
-getStreet()
-getArea()
-getCity()
-__call()
-delete()
-update()
-save()
-getCounterparties()
-cloneLoyaltyCounterpartySender()
-getCounterpartyContactPersons()
-getCounterpartyAddresses()
-getCounterpartyOptions()
-getCounterpartyByEDRPOU()
-getDocumentPrice()
-getDocumentDeliveryDate()
-newInternetDocument()
-printDocument()
-printMarkings()
-findArea()
-findCityByRegion()
-checkInternetDocumentCounterparty()
-checkInternetDocumentParams()
-printGetLink()
+* __construct()
+* setKey()
+* getKey()
+* setLanguage()
+* getLanguage()
+* setFormat()
+* getFormat()
+* model()
+* method()
+* params()
+* execute()
+* documentsTracking()
+* getCities()
+* getWarehouses()
+* getWarehouse()
+* getStreet()
+* getArea()
+* getCity()
+* __call()
+* delete()
+* update()
+* save()
+* getCounterparties()
+* cloneLoyaltyCounterpartySender()
+* getCounterpartyContactPersons()
+* getCounterpartyAddresses()
+* getCounterpartyOptions()
+* getCounterpartyByEDRPOU()
+* getDocumentPrice()
+* getDocumentDeliveryDate()
+* newInternetDocument()
+* printDocument()
+* printMarkings()
+* findArea()
+* findCityByRegion()
+* checkInternetDocumentCounterparty()
+* checkInternetDocumentParams()
+* printGetLink()
