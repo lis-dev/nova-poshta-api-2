@@ -706,7 +706,8 @@ class NovaPoshtaApi2 {
 		$this->checkInternetDocumentCounterparty($recipient);
 		$this->checkInternetDocumentParams($params);
 		// Prepare sender data
-		$sender['CounterpartyProperty'] = 'Sender';
+		// TODO There must be 'Sender', but now it works only when there is 'Recipient'
+		$sender['CounterpartyProperty'] = 'Recipient';
 		$sender['SendersPhone'] = $sender['Phone'];
 		if ( ! $sender['CitySender']) {
 			$senderCity = $this->getCity($sender['City'], $sender['Region']);
