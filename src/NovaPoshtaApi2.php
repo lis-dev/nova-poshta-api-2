@@ -641,8 +641,9 @@ class NovaPoshtaApi2 {
 		// Check required fields
 		if ( ! $counterparty['FirstName'])
 			throw new Exception('FirstName is required filed for sender and recipient');
-		if ( ! $counterparty['MiddleName'])
-			throw new Exception('MiddleName is required filed for sender and recipient');
+		// MiddleName realy is not required field, but manual says otherwise 
+		// if ( ! $counterparty['MiddleName'])
+			// throw new Exception('MiddleName is required filed for sender and recipient');
 		if ( ! $counterparty['LastName'])
 			throw new Exception('LastName is required filed for sender and recipient');
 		if ( ! $counterparty['Phone'])
