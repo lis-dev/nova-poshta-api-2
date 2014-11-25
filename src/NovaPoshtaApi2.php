@@ -141,7 +141,7 @@ class NovaPoshtaApi2 {
 				: json_decode($data, 1);
 			// If error exists, throw Exception
 			if ($this->throwErrors AND $result['errors'])
-				throw new Exception(implode("\n", $result['errors']));
+				throw new Exception(is_array($result['errors']) ? implode("\n", $result['errors']) : $result['errors']);
 			return $result;
 		}
 		// Returns json or xml document
