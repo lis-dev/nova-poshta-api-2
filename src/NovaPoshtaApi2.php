@@ -754,8 +754,8 @@ class NovaPoshtaApi2 {
 	 * @param string $type (html_link|pdf_link)
 	 * @return mixed
 	 */
-	protected function printGetLink($method, $documentRefs) {
-		$data = 'https://my.novaposhta.ua/orders/printMarkings/orders[]/'.implode(',', $documentRefs)
+	protected function printGetLink($method, $documentRefs, $type) {
+		$data = 'https://my.novaposhta.ua/orders/' . $method . '/orders[]/'.implode(',', $documentRefs)
 				.'/type/'.str_replace('_link', '', $type)
 				.'/apiKey/'.$this->key;
 		// Return data in same format like NovaPoshta API
