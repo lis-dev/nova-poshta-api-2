@@ -1,0 +1,9 @@
+{
+    "name": "lis-dev/nova-poshta-api-2",
+    "description": "PHP class for API 2.0 ukrainian delivery company \"Nova Poshta\"",
+    "license": "MIT",
+    "authors": [],
+    "require": {
+        "phpunit/phpunit": "~4.4"
+    }
+}
