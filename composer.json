@@ -1,7 +1,7 @@
 {
     "name": "lis-dev/nova-poshta-api-2",
     "description": "PHP class for API 2.0 ukrainian delivery company \"Nova Poshta\"",
-    "keywords": ["новая почта", "нова пошта", "delivery", "delivery service", "nova poshta", "nova poshta api"],
+    "keywords": ["delivery", "delivery service", "nova poshta", "nova poshta api"],
     "homepage": "https://github.com/lis-dev/",
     "license": "MIT",
     "authors": [
