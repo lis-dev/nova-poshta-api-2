@@ -1,12 +1,13 @@
 <?php
+namespace LisDev\Tests;
 require_once dirname(__FILE__).'/../src/NovaPoshtaApi2.php';
+use LisDev\Delivery\NovaPoshtaApi2;
 /**
  * phpUnit test class
  * 
  * @author lis-dev
- * @version 0.01
  */
-class NovaPoshtaApi2Test extends PHPUnit_Framework_TestCase
+class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
 {
 	/**
 	 * Key for connection

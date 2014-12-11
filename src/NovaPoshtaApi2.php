@@ -1,4 +1,5 @@
 <?php
+namespace LisDev\Delivery;
 /**
  * Nova Poshta API Class
  * 
@@ -141,7 +142,7 @@ class NovaPoshtaApi2 {
 				: json_decode($data, 1);
 			// If error exists, throw Exception
 			if ($this->throwErrors AND $result['errors'])
-				throw new Exception(is_array($result['errors']) ? implode("\n", $result['errors']) : $result['errors']);
+				throw new \Exception(is_array($result['errors']) ? implode("\n", $result['errors']) : $result['errors']);
 			return $result;
 		}
 		// Returns json or xml document
@@ -154,7 +155,7 @@ class NovaPoshtaApi2 {
 	 * @param array 
 	 */
 	private function array2xml(array $array, $xml = false){
-		($xml === false) AND $xml = new SimpleXMLElement('<root/>');
+		($xml === false) AND $xml = new \SimpleXMLElement('<root/>');
 		foreach($array as $key => $value){
 			if (is_array($value)){
 				$this->array2xml($value, $xml->addChild($key));
@@ -640,18 +641,18 @@ class NovaPoshtaApi2 {
 	protected function checkInternetDocumentCounterparty(array & $counterparty) {
 		// Check required fields
 		if ( ! $counterparty['FirstName'])
-			throw new Exception('FirstName is required filed for sender and recipient');
+			throw new \Exception('FirstName is required filed for sender and recipient');
 		// MiddleName realy is not required field, but manual says otherwise 
 		// if ( ! $counterparty['MiddleName'])
-			// throw new Exception('MiddleName is required filed for sender and recipient');
+			// throw new \Exception('MiddleName is required filed for sender and recipient');
 		if ( ! $counterparty['LastName'])
-			throw new Exception('LastName is required filed for sender and recipient');
+			throw new \Exception('LastName is required filed for sender and recipient');
 		if ( ! $counterparty['Phone'])
-			throw new Exception('Phone is required filed for sender and recipient');
+			throw new \Exception('Phone is required filed for sender and recipient');
 		if ( ! ($counterparty['City'] OR $counterparty['CityRef']))
-			throw new Exception('City is required filed for sender and recipient');
+			throw new \Exception('City is required filed for sender and recipient');
 		if ( ! ($counterparty['Region'] OR $counterparty['CityRef']))
-			throw new Exception('Region is required filed for sender and recipient');
+			throw new \Exception('Region is required filed for sender and recipient');
 	
 		// Set defaults
 		if ( ! $counterparty['CounterpartyType']) {
@@ -667,11 +668,11 @@ class NovaPoshtaApi2 {
 	 */
 	protected function checkInternetDocumentParams(array & $params) {
 		if ( ! $params['Description'])
-			throw new Exception('Description is required filed for new Internet document');
+			throw new \Exception('Description is required filed for new Internet document');
 		if ( ! $params['Weight'])
-			throw new Exception('Weight is required filed for new Internet document');
+			throw new \Exception('Weight is required filed for new Internet document');
 		if ( ! $params['Cost'])
-			throw new Exception('Cost is required filed for new Internet document');
+			throw new \Exception('Cost is required filed for new Internet document');
 		( ! $params['DateTime']) AND $params['DateTime'] = date('d.m.Y');
 		( ! $params['ServiceType']) AND $params['ServiceType'] = 'WarehouseWarehouse';
 		( ! $params['PaymentMethod']) AND $params['PaymentMethod'] = 'Cash';
