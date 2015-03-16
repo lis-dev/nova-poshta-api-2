@@ -146,6 +146,6 @@ return array(
 		'Description' => 'Чернівці',
 		'DescriptionRu' => 'Черновцы',
 		'Area' => 'Чернівецька',
-		'AreaRu' => 'Черновецкая',
+		'AreaRu' => 'Черновицкая',
 	),
 );
