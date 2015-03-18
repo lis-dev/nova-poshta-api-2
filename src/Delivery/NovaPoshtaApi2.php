@@ -648,6 +648,16 @@ class NovaPoshtaApi2 {
 			'DateTime' => $dateTime,
 		));
 	}
+	
+	/**
+	 * Get documents list
+	 *
+	 * @param array $params List of params
+	 * @return mixed
+	 */
+	function getDocumentList($params = NULL) {
+	    return $this->request('InternetDocument', 'getDocumentList', $params ? $params : NULL);
+	}
 
 	/**
 	 * Check required fields for new InternetDocument and set defaults

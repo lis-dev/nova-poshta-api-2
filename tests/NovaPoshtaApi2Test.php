@@ -477,6 +477,14 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
 	}
 	
 	/**
+	 * getDocumentList()
+	 */
+	function testGetDocumentList($params = NULL) {
+	    $result = $this->np->getDocumentList();
+	    $this->assertTrue($result['success']);
+	}
+	
+	/**
 	 * Get first existing sender
 	 */
 	function testNewInternetDocumentGetSender() {
