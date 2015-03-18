@@ -294,6 +294,19 @@ class NovaPoshtaApi2 {
 	}
 	
 	/**
+	 * Get 5 nearest warehouses by array of strings
+	 * 
+	 * @param array $searchStringArray
+	 * @return mixed
+	 */
+	function findNearestWarehouse($searchStringArray) {
+	    $searchStringArray = (array) $searchStringArray;
+		return $this->request('Address', 'findNearestWarehouse', array(
+			'SearchStringArray' => $searchStringArray,
+		));
+	}
+	
+	/**
 	 * Get warehouse by city name and warehouse's description
 	 * 
 	 * @param string $cityRef ID of city

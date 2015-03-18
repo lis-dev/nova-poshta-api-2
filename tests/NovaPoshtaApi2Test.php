@@ -104,6 +104,14 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
 		$result = $this->np->getWarehouses('a9280688-94c0-11e3-b441-0050568002cf');
 		$this->assertTrue($result['success']);
 	}
+		
+	/**
+	 * findNearestWarehouse()
+	 */
+	function testFindNearestWarehouse() {
+		$result = $this->np->findNearestWarehouse(array('Одесса', 'Донецкая область'));
+		$this->assertTrue($result['success']);
+	}
 	
 	/**
 	 * getStreet() 
