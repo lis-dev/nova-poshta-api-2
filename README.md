@@ -25,6 +25,10 @@ git clone https://github.com/lis-dev/nova-poshta-api-2
 }
 ```
 и запустить из командной строки команду ``php composer.phar install`` или ``php composer.phar update``
+Или выполнить в командной строке 
+```
+composer require lis-dev/nova-poshta-api-2:dev-master
+```
 ### Альтернативная установка
 Необходимо скачать архив по ссылке
 ```
@@ -47,23 +51,31 @@ $result = $np->documentsTracking('59000000000000');
 ```
 ## Получение сроков доставки
 ```php
+// Получение кода города по названию города и области
 $sender_city = $np->getCity('Белгород-Днестровский', 'Одесская');
 $sender_city_ref = $sender_city['data'][0]['Ref'];
+// Получение кода города по названию города и области
 $recipient_city = $np->getCity('Киев', 'Киевская');
 $recipient_city_ref = $recipient_city['data'][0]['Ref'];
+// Дата отправки груза
 $date = date('d.m.Y');
+// Получение ориентировочной даты прибытия груза между складами в разных городах
 $result = $np->getDocumentDeliveryDate($sender_city_ref, $recipient_city_ref, 'WarehouseWarehouse', $date);	
 ```
 ## Получение стоимости доставки
 ```php
+// Получение кода города по названию города и области
 $sender_city = $np->getCity('Белгород-Днестровский', 'Одесская');
 $sender_city_ref = $sender_city['data'][0]['Ref'];
+// Получение кода города по названию города и области
 $recipient_city = $np->getCity('Киев', 'Киевская');
 $recipient_city_ref = $recipient_city['data'][0]['Ref'];
+// Вес товара
 $weight = 7;
+// Цена в грн
 $price = 5450;
+// Получение стоимости доставки груза с указанным весом и стоимостью между складами в разных городах 
 $result = $np->getDocumentPrice($sender_city_ref, $recipient_city_ref, 'WarehouseWarehouse', $weight, $price);
-
 ```
 ## Генерирование новой электронной накладной
 ```php
@@ -148,42 +160,55 @@ $result = $np
 	))
 	->execute();
 ```
-# Реализованные методы
-* __construct()
-* setKey()
-* getKey()
-* setLanguage()
-* getLanguage()
-* setFormat()
-* getFormat()
-* model()
-* method()
-* params()
-* execute()
-* documentsTracking()
-* getCities()
-* getWarehouses()
-* getWarehouse()
-* getStreet()
-* getArea()
-* getCity()
-* __call()
-* delete()
-* update()
-* save()
-* getCounterparties()
-* cloneLoyaltyCounterpartySender()
-* getCounterpartyContactPersons()
-* getCounterpartyAddresses()
-* getCounterpartyOptions()
-* getCounterpartyByEDRPOU()
-* getDocumentPrice()
-* getDocumentDeliveryDate()
-* newInternetDocument()
-* printDocument()
-* printMarkings()
-* findArea()
-* findCityByRegion()
-* checkInternetDocumentCounterparty()
-* checkInternetDocumentParams()
-* printGetLink()
+## Реализованные методы для работы с моделями
+# Модель InternetDocument
+* save
+* update
+* delete
+* getDocumentPrice
+* getDocumentDeliveryDate
+* getDocumentList
+* getDocument
+* printDocument
+* printMarkings
+* documentsTracking
+* newInternetDocument
+* generateReport
+# Модель Counterparty
+* save
+* update
+* delete
+* cloneLoyaltyCounterpartySender
+* getCounterparties
+* getCounterpartyAddresses
+* getCounterpartyContactPersons
+* getCounterpartyByEDRPOU
+* getCounterpartyOptions
+# Модель ContactPerson
+* save
+* update
+* delete
+# Address
+* save
+* update
+* delete
+* getCities
+* getStreet
+* getWarehouses
+* getAreas
+* findNearestWarehouse
+# Модель Common
+* getTypesOfCounterparties
+* getBackwardDeliveryCargoTypes
+* getCargoDescriptionList
+* getCargoTypes
+* getDocumentStatuses
+* getOwnershipFormsList
+* getPalletsList
+* getPaymentForms
+* getTimeIntervals
+* getServiceTypes
+* getTiresWheelsList
+* getTraysList
+* getTypesOfPayers
+* getTypesOfPayersForRedelivery
