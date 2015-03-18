@@ -68,15 +68,25 @@ $result = $np->getDocumentPrice($sender_city_ref, $recipient_city_ref, 'Warehous
 ## Генерирование новой электронной накладной
 ```php
 $result = $np->newInternetDocument(
+	// Данные отправителя
 	array(
+		// Данные пользователя
 		'FirstName' => 'Петр',
 		'MiddleName' => 'Петрович',
 		'LastName' => 'Петров',
+		// Вместо FirstName, MiddleName, LastName можно ввести зарегистрированные ФИО отправителя или название фирмы для юрлиц
+		// (можно получить, вызвав метод getCounterparties('Sender', 1, '', ''))
+		'Description' => 'Иванов Иван Иванович',
+		// Необязательное поле, в случае отсутствия будет использоваться из данных контакта
 		'Phone' => '0631112233',
+		// Город отправления
 		'City' => 'Белгород-Днестровский',
+		// Область отправления
 		'Region' => 'Одесская',
+		// Отделение отправления
 		'Warehouse' => 'Отделение №2 (до 30 кг): ул. Дзержинского, 54',
 	),
+	// Данные получателя
 	array(
 		'FirstName' => 'Сидор',
 		'MiddleName' => 'Сидорович',
@@ -87,20 +97,34 @@ $result = $np->newInternetDocument(
 		'Warehouse' => 'Отделение №3: ул. Калачевская, 13 (Старая Дарница)',
 	),
 	array(
+		// Дата отправления
 		'DateTime' => '13.12.2014',
+		// Тип доставки, дополнительно - getServiceTypes()
 		'ServiceType' => 'WarehouseWarehouse',
+		// Тип оплаты, дополнительно - getPaymentForms()
 		'PaymentMethod' => 'Cash',
+		// Кто оплачивает за доставку
 		'PayerType' => 'Recipient',
+		// Стоимость груза в грн
 		'Cost' => '500',
+		// Кол-во мест
 		'SeatsAmount' => '1',
+		// Описание груза
 		'Description' => 'Кастрюля',
+		// Тип доставки, дополнительно - getCargoTypes
 		'CargoType' => 'Cargo',
+		// Вес груза
 		'Weight' => '10',
+		// Объем груза в куб.м.
 		'VolumeGeneral' => '0.5',
+		// Обратная доставка
 		'BackwardDeliveryData' => array(
 			array(
+				// Кто оплачивает обратнку доставку
 				'PayerType' => 'Recipient',
+				// Тип доставки
 				'CargoType' => 'Money',
+				// Значение обратной доставки
 	 			'RedeliveryString' => 4552,
  			)
 		)
@@ -109,6 +133,7 @@ $result = $np->newInternetDocument(
 ```
 ## Получение складов в определенном городе
 ```php
+// В параметрах указывается город и область (для более точного поиска)
 $city = $np->getCity('Киев', 'Киевская');
 $result = $np->getWarehouses($city);
 ```

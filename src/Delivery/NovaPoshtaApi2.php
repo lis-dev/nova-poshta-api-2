@@ -512,9 +512,11 @@ class NovaPoshtaApi2 {
 	/**
 	 * Save method of current model
 	 * Required params: 
-	 * For ContactPerson model: CounterpartyRef, FirstName (ukr), MiddleName, LastName, Phone (format 0xxxxxxxxx)
-	 * For Counterparty model: CounterpartyProperty (Recipient|Sender), CityRef, CounterpartyType (Organization, PrivatePerson), 
-	 * FirstName (or name of organization), MiddleName, LastName, Phone (0xxxxxxxxx), OwnershipForm (if Organization)
+	 * For ContactPerson model (only for Organization API key, for PrivatePerson error will be returned): 
+	 *	 CounterpartyRef, FirstName (ukr), MiddleName, LastName, Phone (format 0xxxxxxxxx)
+	 * For Counterparty model:
+	 *	 CounterpartyProperty (Recipient|Sender), CityRef, CounterpartyType (Organization, PrivatePerson), 
+	 *	 FirstName (or name of organization), MiddleName, LastName, Phone (0xxxxxxxxx), OwnershipForm (if Organization)
 	 * 
 	 * @param array $params
 	 * @return mixed
@@ -544,6 +546,7 @@ class NovaPoshtaApi2 {
 	
 	/**
 	 * cloneLoyaltyCounterpartySender() function of model Counterparty
+	 * The counterparty will be not created immediately, you can wait a long time
 	 * 
 	 * @param string $cityRef City ID
 	 * @return mixed
@@ -635,24 +638,24 @@ class NovaPoshtaApi2 {
 	/**
 	 * Check required fields for new InternetDocument and set defaults
 	 * 
-	 * @param array & $counterparty Sender of Recipient info
+	 * @param array & $counterparty Recipient info array
 	 * @return void
 	 */
-	protected function checkInternetDocumentCounterparty(array & $counterparty) {
+	protected function checkInternetDocumentRecipient(array & $counterparty) {
 		// Check required fields
 		if ( ! $counterparty['FirstName'])
-			throw new \Exception('FirstName is required filed for sender and recipient');
+			throw new \Exception('FirstName is required filed for recipient');
 		// MiddleName realy is not required field, but manual says otherwise 
 		// if ( ! $counterparty['MiddleName'])
 			// throw new \Exception('MiddleName is required filed for sender and recipient');
 		if ( ! $counterparty['LastName'])
-			throw new \Exception('LastName is required filed for sender and recipient');
+			throw new \Exception('LastName is required filed for recipient');
 		if ( ! $counterparty['Phone'])
-			throw new \Exception('Phone is required filed for sender and recipient');
+			throw new \Exception('Phone is required filed for recipient');
 		if ( ! ($counterparty['City'] OR $counterparty['CityRef']))
-			throw new \Exception('City is required filed for sender and recipient');
+			throw new \Exception('City is required filed for recipient');
 		if ( ! ($counterparty['Region'] OR $counterparty['CityRef']))
-			throw new \Exception('Region is required filed for sender and recipient');
+			throw new \Exception('Region is required filed for recipient');
 	
 		// Set defaults
 		if ( ! $counterparty['CounterpartyType']) {
@@ -687,6 +690,9 @@ class NovaPoshtaApi2 {
 	 * 
 	 * @param array $sender Sender info. 
 	 * 	Required:
+	 *  For existing sender:
+	 *	  'Description' => String (Full name i.e.), 'City' => String (City name)
+	 *  For creating: 
 	 * 		'FirstName' => String, 'MiddleName' => String,
 	 * 		'LastName' => String, 'Phone' => '000xxxxxxx', 'City' => String (City name), 'Region' => String (Region name), 
 	 * 		'Warehouse' => String (Description from getWarehouses))
@@ -703,13 +709,8 @@ class NovaPoshtaApi2 {
 	 */
 	function newInternetDocument($sender, $recipient, $params) {
 		// Check for required params and set defaults
-		$this->checkInternetDocumentCounterparty($sender);
-		$this->checkInternetDocumentCounterparty($recipient);
+		$this->checkInternetDocumentRecipient($recipient);
 		$this->checkInternetDocumentParams($params);
-		// Prepare sender data
-		// TODO There must be 'Sender', but now it works only when there is 'Recipient'
-		$sender['CounterpartyProperty'] = 'Recipient';
-		$sender['SendersPhone'] = $sender['Phone'];
 		if ( ! $sender['CitySender']) {
 			$senderCity = $this->getCity($sender['City'], $sender['Region']);
 			$sender['CitySender'] = $senderCity['data'][0]['Ref'];
@@ -720,10 +721,23 @@ class NovaPoshtaApi2 {
 			$sender['SenderAddress'] = $senderWarehouse['data'][0]['Ref'];
 		}
 		if ( ! $sender['Sender']) {
-			$senderCounterparty = $this->model('Counterparty')->save($sender);
-			$sender['Sender'] = $senderCounterparty['data'][0]['Ref'];
-			$sender['ContactSender'] = $senderCounterparty['data'][0]['ContactPerson']['data'][0]['Ref'];
+			$sender['CounterpartyProperty'] = 'Sender';
+			// Set full name to Description if is not set
+			if ( ! $sender['Description']) {
+			    $sender['Description'] = $sender['LastName'].' '.$sender['FirstName'].' '.$sender['MiddleName'];
+			}
+			// Check for existing sender
+			$senderCounterpartyExisting = $this->getCounterparties('Sender', 1, $sender['Description'], $sender['CityRef']);
+			// Copy user to the selected city if user doesn't exists there
+			if ($senderCounterpartyExisting['data'][0]['Ref']) {
+    			// Counterparty exists
+    			$sender['Sender'] = $senderCounterpartyExisting['data'][0]['Ref'];
+    			$contactSender = $this->getCounterpartyContactPersons($sender['Sender']);
+    			$sender['ContactSender'] = $contactSender['data'][0]['Ref'];
+    			$sender['SendersPhone'] = $sender['Phone'] ? $sender['Phone'] : $contactSender['data'][0]['Phones'];
+			}
 		}
+		
 		// Prepare recipient data
 		$recipient['CounterpartyProperty'] = 'Recipient';
 		$recipient['RecipientsPhone'] = $recipient['Phone'];
