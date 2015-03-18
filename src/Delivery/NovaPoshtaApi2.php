@@ -666,6 +666,17 @@ class NovaPoshtaApi2 {
 	 * Get documents list
 	 *
 	 * @param array $params List of params
+	 * Not required keys:
+	 * 'Ref', 'IntDocNumber', 'InfoRegClientBarcodes', 'DeliveryDateTime', 'RecipientDateTime',
+	 * 'CreateTime', 'SenderRef', 'RecipientRef', 'WeightFrom', 'WeightTo',
+	 * 'CostFrom', 'CostTo', 'SeatsAmountFrom', 'SeatsAmountTo', 'CostOnSiteFrom',
+	 * 'CostOnSiteTo', 'StateIds', 'ScanSheetRef', 'DateTime', 'DateTimeFrom',
+	 * 'RecipientDateTime', 'isAfterpayment', 'Page', 'OrderField => 
+	 *   [
+	 *    IntDocNumber, DateTime, Weight, Cost, SeatsAmount, CostOnSite, 
+	 *    CreateTime, EstimatedDeliveryDate, StateId, InfoRegClientBarcodes, RecipientDateTime
+	 *   ],
+	 * 'OrderDirection' => [DESC, ASC], 'ScanSheetRef'
 	 * @return mixed
 	 */
 	function getDocumentList($params = NULL) {
@@ -682,6 +693,17 @@ class NovaPoshtaApi2 {
 		return $this->request('InternetDocument', 'getDocument', array(
 			'Ref' => $ref,
 		));
+	}
+	
+	/**
+	 * Generetes report by Document refs
+	 * 
+	 * @param array $params Params like getDocumentList with requiered keys 
+	 *  'Type' => [xls, csv], 'DocumentRefs' => []
+	 * @return mixed
+	 */
+	function generateReport($params) {
+	    return $this->request('InternetDocument', 'generateReport', $params);
 	}
 
 	/**

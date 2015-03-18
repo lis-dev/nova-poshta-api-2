@@ -504,6 +504,15 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
 	}
 	
 	/**
+	 * generateReport()
+	 */
+	function testGenerateReport() {
+	    // Must return xls with headers
+	    $result = $this->np->generateReport(array('Type' => 'xls', 'DocumentRefs' => '1234', 'DateTime' => date('d.m.Y')));
+	    $this->assertEmpty($result);
+	}
+	
+	/**
 	 * Get first existing sender
 	 */
 	function testNewInternetDocumentGetSender() {
