@@ -482,6 +482,17 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
 	function testGetDocumentList($params = NULL) {
 	    $result = $this->np->getDocumentList();
 	    $this->assertTrue($result['success']);
+	    return $result['data'][0]['Ref'];
+	}
+	
+	/**
+	 * getDocument()
+	 * 
+	 * @depends testGetDocumentList
+	 */
+	function testGetDocument($ref) {
+	    $result = $this->np->getDocument($ref);
+	    $this->assertTrue($result['success']);
 	}
 	
 	/**

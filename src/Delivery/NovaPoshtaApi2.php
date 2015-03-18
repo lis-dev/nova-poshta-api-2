@@ -658,6 +658,18 @@ class NovaPoshtaApi2 {
 	function getDocumentList($params = NULL) {
 	    return $this->request('InternetDocument', 'getDocumentList', $params ? $params : NULL);
 	}
+	
+	/**
+	 * Get document info by ID
+	 * 
+	 * @param string $ref Document ID
+	 * @return mixed
+	 */
+	function getDocument($ref) {
+		return $this->request('InternetDocument', 'getDocument', array(
+			'Ref' => $ref,
+		));
+	}
 
 	/**
 	 * Check required fields for new InternetDocument and set defaults
