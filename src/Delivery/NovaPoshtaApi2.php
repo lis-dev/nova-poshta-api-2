@@ -400,6 +400,20 @@ class NovaPoshtaApi2 {
 	}
 	
 	/**
+	 * Get areas list by city and/or search string
+	 *
+	 * @param string $ref ID of area
+	 * @param int $page
+	 * @return mixed
+	 */
+	function getAreas($ref = '', $page = 0) {
+	    return $this->request('Address', 'getAreas', array(
+	        'Ref' => $ref,
+	        'Page' => $page,
+	    ));
+	}
+	
+	/**
 	 * Find city from list by name of region
 	 * 
 	 * @param array $cities Array from query getCities to NovaPoshta 
