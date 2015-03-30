@@ -33,6 +33,11 @@ class NovaPoshtaApi2 {
 	protected $language = 'ru';
 	
 	/**
+	 * @var string $connectionType Connection type (curl | file_get_contents)
+	 */
+	protected $connectionType = 'curl';
+	
+	/**
 	 * @var string $areas Areas (loaded from file, because there is no so function in NovaPoshta API 2.0)
 	 */
 	protected $areas;
@@ -58,13 +63,15 @@ class NovaPoshtaApi2 {
 	 * @param string $key NovaPoshta API key
 	 * @param string $language Default Language
 	 * @param bool $throwErrors Throw request errors as Exceptions
+	 * @param bool $connectionType Connection type (curl | file_get_contents)
 	 * @return NovaPoshtaApi2 
 	 */
-	function __construct($key, $language = 'ru', $throwErrors = FALSE) {
+	function __construct($key, $language = 'ru', $throwErrors = FALSE, $connectionType = 'curl') {
 		$this->throwErrors = $throwErrors;
 		return $this	
 			->setKey($key)
 			->setLanguage($language)
+			->setConnectionType($connectionType)
 			->model('Common');
 	}
 	
@@ -86,6 +93,26 @@ class NovaPoshtaApi2 {
 	 */
 	function getKey() {
 		return $this->key;
+	}
+	
+	/**
+	 * Setter for $connectionType property
+	 * 
+	 * @param string $connectionType Connection type (curl | file_get_contents)
+	 * @return this
+	 */
+	function setConnectionType($connectionType) {
+		$this->connectionType = $connectionType;
+		return $this;
+	}
+	
+	/**
+	 * Getter for $connectionType property
+	 * 
+	 * @return string
+	 */
+	function getConnectionType() {
+		return $this->connectionType;
 	}
 	
 	/**
@@ -191,15 +218,26 @@ class NovaPoshtaApi2 {
 			? $this->array2xml($data)
 			: $post = json_encode($data);
 			
-		$ch = curl_init($url);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: '.($this->format == 'xml' ? 'text/xml' : 'application/json')));
-		curl_setopt($ch, CURLOPT_HEADER, 0);
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-		$result = curl_exec($ch);
-		curl_close($ch);
+		if ($this->getConnectionType() == 'curl') {
+		    $ch = curl_init($url);
+		    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: '.($this->format == 'xml' ? 'text/xml' : 'application/json')));
+		    curl_setopt($ch, CURLOPT_HEADER, 0);
+		    curl_setopt($ch, CURLOPT_POST, 1);
+		    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		    curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+		    $result = curl_exec($ch);
+		    curl_close($ch);
+		} else {
+    		$result = file_get_contents($url, null, stream_context_create(array(
+    		    'http' => array(
+    		        'method' => 'POST',
+    		        'header' => "Content-type: application/x-www-form-urlencoded;\r\n",
+    		        'content' => $post,
+    		    ),
+    		)));
+		}
+		
 		return $this->prepare($result);
 	}
 

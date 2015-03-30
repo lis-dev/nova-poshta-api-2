@@ -33,6 +33,23 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
 		// Create new instance
 		$this->np = new NovaPoshtaApi2($this->key);
 	}
+	
+	/**
+	 * Test connectin via file_get_contents()
+	 */
+	function testSetConnectionType() {
+		$result = $this->np->setConnectionType('file_get_contents');
+		$this->assertInstanceOf('LisDev\Delivery\NovaPoshtaApi2', $result);
+	}
+
+	/**
+	 * getConnectionType()
+	 */
+	function testGetConnectionType() {
+		$result = $this->np->getConnectionType();
+		$this->assertNotEmpty($result);
+	}
+
 	/**
 	 * getKey()
 	 */
@@ -54,6 +71,14 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
 	 */
 	function testDocumentsTrackingResultArray() {
 		$result = $this->np->documentsTracking('59000082032106');
+		$this->assertTrue($result['success']);
+	}
+	
+	/**
+	 * Test request via file_get_content
+	 */
+	function testRequestViaFileGetContent() {
+		$result = $this->np->setConnectionType('file_get_content')->documentsTracking('59000082032106');
 		$this->assertTrue($result['success']);
 	}
 	
@@ -494,16 +519,6 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
 	}
 	
 	/**
-	 * getDocument()
-	 * 
-	 * @depends testGetDocumentList
-	 */
-	function testGetDocument($ref) {
-	    $result = $this->np->getDocument($ref);
-	    $this->assertTrue($result['success']);
-	}
-	
-	/**
 	 * generateReport()
 	 */
 	function testGenerateReport() {
@@ -564,6 +579,16 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
 		);
 		$this->assertTrue($result['success']);
 		return $result['data'][0]['Ref'];
+	}
+	
+	/**
+	 * getDocument()
+	 *
+	 * @depends testNewInternetDocument
+	 */
+	function testGetDocument($ref) {
+	    $result = $this->np->getDocument($ref);
+	    $this->assertTrue($result['success']);
 	}
 	
 	/**
