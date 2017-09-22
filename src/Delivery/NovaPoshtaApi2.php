@@ -217,7 +217,10 @@ class NovaPoshtaApi2 {
 		$post = $this->format == 'xml'
 			? $this->array2xml($data)
 			: $post = json_encode($data);
-			
+		
+		//remowe BOM string (is added when the array is transferred)
+        	$post = str_replace('\ufeff\u200e', '', $post);
+		
 		if ($this->getConnectionType() == 'curl') {
 		    $ch = curl_init($url);
 		    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -299,6 +302,30 @@ class NovaPoshtaApi2 {
 	 */
 	function documentsTracking($track) {
 		return $this->request('InternetDocument', 'documentsTracking', array('Documents' => array('item' => $track)));
+	}
+	
+	/**
+	* @param array $ttn
+	*$ttn[1] = array('ttn' => '11000283564566', 'phone' => '0670000000');
+	*$ttn[2] = array('ttn' => '﻿‎11450047328487', 'phone' => '0670000000');
+	*Doc https://devcenter.novaposhta.ua/blog/трекинг
+	* @return mixed
+	*/
+	function getStatusDocuments(array $ttn) {
+		foreach ($ttn as $key=>$ttnitem){
+		    $arTtn[] = array(
+			'DocumentNumber' => $ttnitem["ttn"],
+			'Phone' => $ttnitem["phone"]
+		    );
+
+	}
+	return $this->request(
+	    'TrackingDocument',
+	    'getStatusDocuments',
+	    array(
+		    'Documents' => $arTtn
+	    )
+	);
 	}
 	
 	/**
