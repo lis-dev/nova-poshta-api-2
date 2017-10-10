@@ -924,4 +924,12 @@ class NovaPoshtaApi2 {
 		// If needs data
 		return $this->request('InternetDocument', 'printMarkings', array('DocumentRefs' => $documentRefs, 'Type' => $type));
 	}
+	
+	/**
+	 * Return list of cards
+	 * @return mixed
+	 */
+	function getCards() {
+		return $this->request('Payment', 'getCards', NULL);
+	}
 }
