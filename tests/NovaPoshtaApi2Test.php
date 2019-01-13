@@ -16,7 +16,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      *
      * @see https://my.novaposhta.ua/settings/index#apikeys
      */
-    private $key = '';
+    private static $key = '';
 
     /**
      * Test tracking number.
@@ -40,6 +40,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
     {
         // Disable notices
         error_reporting(E_ALL ^ E_NOTICE);
+        !self::$key and self::$key = getenv('NOVA_POSHTA_API2_KEY');
     }
 
     /**
@@ -48,7 +49,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         // Create new instance
-        $this->np = new NovaPoshtaApi2($this->key);
+        $this->np = new NovaPoshtaApi2(self::$key);
     }
 
     /**

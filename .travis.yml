@@ -1,0 +1,10 @@
+language: php
+dist: precise
+php:
+  - '5.3'
+
+install:
+  - composer install
+
+script:
+  - vendor/phpunit/phpunit/phpunit tests
