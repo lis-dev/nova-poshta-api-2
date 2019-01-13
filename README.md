@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/lis-dev/nova-poshta-api-2.svg?branch=master)](https://travis-ci.com/lis-dev/nova-poshta-api-2)
+
 # Nova Poshta API 2.0
 Класс предоставляет доступ к функциям API 2.0 службы доставки Новая Почта
 
@@ -242,3 +244,12 @@ $result = $np
 * getTraysList
 * getTypesOfPayers
 * getTypesOfPayersForRedelivery
+
+# Тесты
+Актуальные тесты и примеры использования класса находятся в файле `tests/NovaPoshtaApi2Test.php`
+
+Для запуска тестов локально необходимо выполнить в командной строке
+```
+composer install
+NOVA_POSHTA_API2_KEY=Ваш_ключ_API_2.0 vendor/phpunit/phpunit/phpunit tests
+```
