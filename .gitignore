@@ -1,7 +1,8 @@
 .project
 .settings
 .htaccess
-composer.lock
+.php_cs.cache
+.idea/
 tests/cover
-/vendor/
-/web/
+vendor/
+web/
