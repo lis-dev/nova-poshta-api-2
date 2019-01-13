@@ -20,14 +20,14 @@ git clone https://github.com/lis-dev/nova-poshta-api-2
 ```json
 {
     "require": {
-        "lis-dev/nova-poshta-api-2": "dev-master"
+        "lis-dev/nova-poshta-api-2": "~0.1.0"
     }
 }
 ```
 и запустить из командной строки команду ``php composer.phar install`` или ``php composer.phar update``
 Или выполнить в командной строке 
 ```
-composer require lis-dev/nova-poshta-api-2:dev-master
+composer require lis-dev/nova-poshta-api-2
 ```
 ### Альтернативная установка
 Необходимо скачать архив по ссылке
