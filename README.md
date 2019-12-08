@@ -43,10 +43,30 @@ https://github.com/lis-dev/nova-poshta-api-2/archive/master.zip
 * XML
 
 # Использование 
-## Создание экземпляра класса
+## Подключение класса при установке через composer
 ```php
+require __DIR__ . '/vendor/autoload.php';
+```
+
+## Подключение класса при альтернативной установке
+```php
+require '<path_to_dir>/src/Delivery/NovaPoshtaApi2.php';
+```
+
+## Создание экземпляра класса
+Класс по умолчанию находится в namespace `\LisDev\Delivery`. При создании экземпляра класса необходимо
+или использовать Full Qualified Class Name:
+```php
+$np = new \LisDev\Delivery\NovaPoshtaApi2('Ваш_ключ_API_2.0');
+```
+или указать используемый namespace в секции use:
+```php
+use LisDev\Delivery\NovaPoshtaApi2;
+...
 $np = new NovaPoshtaApi2('Ваш_ключ_API_2.0');
 ```
+
+Более подробную информацию по работе с namespace можно получить [на сайте документации php](https://www.php.net/manual/ru/language.namespaces.rationale.php)
 
 ## Создание экземпляра класса (с расширенными параметрами)
 Рекомендуется использовать, если необходимо получать данные на языке, отличном от русского, выбрасывать Exception при ошибке запроса, или при отсутствии установленной библиотеки curl на сервере
