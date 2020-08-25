@@ -190,7 +190,7 @@ class NovaPoshtaApi2
                 ? $data
                 : json_decode($data, 1);
             // If error exists, throw Exception
-            if ($this->throwErrors and $result['errors']) {
+            if ($this->throwErrors and array_key_exists('errors', $result)) {
                 throw new \Exception(is_array($result['errors']) ? implode("\n", $result['errors']) : $result['errors']);
             }
             return $result;
