@@ -46,7 +46,7 @@ class NovaPoshtaApi2
     /**
      * @var string Areas (loaded from file, because there is no so function in NovaPoshta API 2.0)
      */
-    protected $areas;
+    protected $areas = '';
 
     /**
      * @var string Set current model for methods save(), update(), delete()
@@ -56,12 +56,12 @@ class NovaPoshtaApi2
     /**
      * @var string Set method of current model
      */
-    protected $method;
+    protected $method = '';
 
     /**
      * @var array Set params of current method of current model
      */
-    protected $params;
+    protected $params = array();
 
     /**
      * Default constructor.
@@ -69,14 +69,14 @@ class NovaPoshtaApi2
      * @param string $key            NovaPoshta API key
      * @param string $language       Default Language
      * @param bool   $throwErrors    Throw request errors as Exceptions
-     * @param bool   $connectionType Connection type (curl | file_get_contents)
+     * @param string   $connectionType Connection type (curl | file_get_contents)
      *
      * @return NovaPoshtaApi2
      */
     public function __construct($key, $language = 'ru', $throwErrors = false, $connectionType = 'curl')
     {
         $this->throwErrors = $throwErrors;
-        return $this
+        $this
             ->setKey($key)
             ->setLanguage($language)
             ->setConnectionType($connectionType)
@@ -178,17 +178,17 @@ class NovaPoshtaApi2
     /**
      * Prepare data before return it.
      *
-     * @param json $data
+     * @param string|array $data
      *
      * @return mixed
      */
     private function prepare($data)
     {
-        //Returns array
+        // Returns array
         if ('array' == $this->format) {
             $result = is_array($data)
                 ? $data
-                : json_decode($data, 1);
+                : json_decode($data, true);
             // If error exists, throw Exception
             if ($this->throwErrors and array_key_exists('errors', $result)) {
                 throw new \Exception(is_array($result['errors']) ? implode("\n", $result['errors']) : $result['errors']);
@@ -202,7 +202,8 @@ class NovaPoshtaApi2
     /**
      * Converts array to xml.
      *
-     * @param array
+     * @param array $array
+     * @param \SimpleXMLElement|bool $xml
      */
     private function array2xml(array $array, $xml = false)
     {
@@ -257,7 +258,7 @@ class NovaPoshtaApi2
             $result = curl_exec($ch);
             curl_close($ch);
         } else {
-            $result = file_get_contents($url, null, stream_context_create(array(
+            $result = file_get_contents($url, false, stream_context_create(array(
                 'http' => array(
                     'method' => 'POST',
                     'header' => "Content-type: application/x-www-form-urlencoded;\r\n",
@@ -283,8 +284,8 @@ class NovaPoshtaApi2
         }
 
         $this->model = $model;
-        $this->method = null;
-        $this->params = null;
+        $this->method = '';
+        $this->params = array();
         return $this;
     }
 
@@ -302,7 +303,7 @@ class NovaPoshtaApi2
         }
 
         $this->method = $method;
-        $this->params = null;
+        $this->params = array();
         return $this;
     }
 
@@ -403,6 +404,7 @@ class NovaPoshtaApi2
     public function getWarehouse($cityRef, $description = '')
     {
         $warehouses = $this->getWarehouses($cityRef);
+        $error = array();
         $data = array();
         if (is_array($warehouses['data'])) {
             if (1 === count($warehouses['data']) or !$description) {
@@ -493,16 +495,17 @@ class NovaPoshtaApi2
     public function getArea($findByString = '', $ref = '')
     {
         // Load areas list from file
-        empty($this->areas) and $this->areas = include dirname(__FILE__).'/NovaPoshtaApi2Areas.php';
+        empty($this->areas) and $this->areas = (include dirname(__FILE__).'/NovaPoshtaApi2Areas.php');
         $data = $this->findArea($this->areas, $findByString, $ref);
         // Error
-        empty($data) and $error = 'Area was not found';
+        $error = array();
+        empty($data) and $error = ['Area was not found'];
         // Return data in same format like NovaPoshta API
         return $this->prepare(
             array(
                 'success' => empty($error),
                 'data' => $data,
-                'errors' => (array) $error,
+                'errors' => $error,
                 'warnings' => array(),
                 'info' => array(),
         )
@@ -562,6 +565,7 @@ class NovaPoshtaApi2
     {
         // Get cities by name
         $cities = $this->getCities(0, $cityName);
+        $data = array();
         if (is_array($cities['data'])) {
             // If cities more then one, calculate current by area name
             $data = (count($cities['data']) > 1)
@@ -569,13 +573,14 @@ class NovaPoshtaApi2
                 : $cities['data'][0];
         }
         // Error
-        (!$data) and $error = 'City was not found';
+        $error = array();
+        (!$data) and $error = ['City was not found'];
         // Return data in same format like NovaPoshta API
         return $this->prepare(
             array(
                 'success' => empty($error),
                 'data' => array($data),
-                'errors' => (array) $error,
+                'errors' => $error,
                 'warnings' => array(),
                 'info' => array(),
         )
@@ -917,7 +922,7 @@ class NovaPoshtaApi2
      *                         'PayerType' => (Sender|Recipient - default), 'PaymentMethod' => (NonCash|Cash - default)
      *                         'ServiceType' => (DoorsDoors|DoorsWarehouse|WarehouseDoors|WarehouseWarehouse - default)
      *                         'CargoType' => String
-     * @param mixed
+     * @return mixed
      */
     public function newInternetDocument($sender, $recipient, $params)
     {
