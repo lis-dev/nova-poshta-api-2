@@ -701,12 +701,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
         $this->assertTrue($result['success']);
     }
 
-    /**
-     * printMarkings().
-     *
-     * @depends testNewInternetDocument
-     */
-    public function testPrintMarkings($ref)
+    public function testPrintMarkings()
     {
         /*
         There is unexsisted DocumentRef, because if will real id there will not
@@ -714,16 +709,11 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
         */
         $result = $this->np->printMarkings('123');
 
-        // Code of 'Document not found'
-        $this->assertEquals('20000300415', $result['errorCodes'][0]);
+        // Code of 'Document does not exist'
+        $this->assertEquals('20000202552', $result['errorCodes'][0]);
     }
 
-    /**
-     * printMarkings().
-     *
-     * @depends testNewInternetDocument
-     */
-    public function testPrintMarkingsGetLink($ref)
+    public function testPrintMarkingsGetLink()
     {
         /*
          There is unexsisted DocumentRef, because if will real id there will not
