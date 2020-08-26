@@ -929,7 +929,6 @@ class NovaPoshtaApi2
             $sender['CitySender'] = $senderCity['data'][0]['Ref'];
         }
         $sender['CityRef'] = $sender['CitySender'];
-//        var_dump($sender['CityRef']);die;
         if (!$sender['SenderAddress'] and $sender['CitySender'] and $sender['Warehouse']) {
             $senderWarehouse = $this->getWarehouse($sender['CitySender'], $sender['Warehouse']);
             $sender['SenderAddress'] = $senderWarehouse['data'][0]['Ref'];
@@ -1029,14 +1028,16 @@ class NovaPoshtaApi2
      *
      * @return mixed
      */
-    public function printMarkings($documentRefs, $type = 'new_html')
+    public function printMarkings($documentRefs, $type = 'new_html', $size = '85x85')
     {
         $documentRefs = (array) $documentRefs;
+        $documentSize = $size === '85x85' ? '85x85' : '100x100';
+        $method = 'printMarking' . $documentSize;
         // If needs link
         if ('html_link' == $type or 'pdf_link' == $type) {
-            return $this->printGetLink('printMarkings', $documentRefs, $type);
+            return $this->printGetLink($method, $documentRefs, $type);
         }
         // If needs data
-        return $this->request('InternetDocument', 'printMarkings', array('DocumentRefs' => $documentRefs, 'Type' => $type));
+        return $this->request('InternetDocument', $method, array('DocumentRefs' => $documentRefs, 'Type' => $type));
     }
 }
