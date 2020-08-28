@@ -499,7 +499,7 @@ class NovaPoshtaApi2
         $data = $this->findArea($this->areas, $findByString, $ref);
         // Error
         $error = array();
-        empty($data) and $error = ['Area was not found'];
+        empty($data) and $error = array('Area was not found');
         // Return data in same format like NovaPoshta API
         return $this->prepare(
             array(
@@ -574,7 +574,7 @@ class NovaPoshtaApi2
         }
         // Error
         $error = array();
-        (!$data) and $error = ['City was not found'];
+        (!$data) and $error = array('City was not found');
         // Return data in same format like NovaPoshta API
         return $this->prepare(
             array(
