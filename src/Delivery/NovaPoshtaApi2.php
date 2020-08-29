@@ -14,6 +14,8 @@ namespace LisDev\Delivery;
  */
 class NovaPoshtaApi2
 {
+    const API_URI = 'https://api.novaposhta.ua/v2.0';
+
     /**
      * Key for API NovaPoshta.
      *
@@ -232,8 +234,8 @@ class NovaPoshtaApi2
     {
         // Get required URL
         $url = 'xml' == $this->format
-            ? 'https://api.novaposhta.ua/v2.0/xml/'
-            : 'https://api.novaposhta.ua/v2.0/json/';
+            ? self::API_URI.'/xml/'
+            : self::API_URI.'/json/';
 
         $data = array(
             'apiKey' => $this->key,
@@ -245,18 +247,20 @@ class NovaPoshtaApi2
         // Convert data to neccessary format
         $post = 'xml' == $this->format
             ? $this->array2xml($data)
-            : $post = json_encode($data);
+            : json_encode($data);
 
         if ('curl' == $this->getConnectionType()) {
             $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: '.('xml' == $this->format ? 'text/xml' : 'application/json')));
-            curl_setopt($ch, CURLOPT_HEADER, 0);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-            $result = curl_exec($ch);
-            curl_close($ch);
+            if (is_resource($ch)) {
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: '.('xml' == $this->format ? 'text/xml' : 'application/json')));
+                curl_setopt($ch, CURLOPT_HEADER, 0);
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+                $result = curl_exec($ch);
+                curl_close($ch);
+            }
         } else {
             $result = file_get_contents($url, false, stream_context_create(array(
                 'http' => array(
@@ -566,7 +570,7 @@ class NovaPoshtaApi2
         // Get cities by name
         $cities = $this->getCities(0, $cityName);
         $data = array();
-        if (is_array($cities['data'])) {
+        if (is_array($cities) && is_array($cities['data'])) {
             // If cities more then one, calculate current by area name
             $data = (count($cities['data']) > 1)
                 ? $this->findCityByRegion($cities, $areaName)
@@ -847,7 +851,7 @@ class NovaPoshtaApi2
     /**
      * Check required fields for new InternetDocument and set defaults.
      *
-     * @param array & $counterparty Recipient info array
+     * @param array &$counterparty Recipient info array
      */
     protected function checkInternetDocumentRecipient(array &$counterparty)
     {
@@ -880,7 +884,7 @@ class NovaPoshtaApi2
     /**
      * Check required params for new InternetDocument and set defaults.
      *
-     * @param array & $params
+     * @param array &$params
      */
     protected function checkInternetDocumentParams(array &$params)
     {
@@ -984,7 +988,7 @@ class NovaPoshtaApi2
      * Get only link on internet document for printing.
      *
      * @param string       $method       Called method of NovaPoshta API
-     * @param array|string $documentRefs Array of Documents IDs
+     * @param array        $documentRefs Array of Documents IDs
      * @param string       $type         (html_link|pdf_link)
      *
      * @return mixed
@@ -1037,7 +1041,7 @@ class NovaPoshtaApi2
     {
         $documentRefs = (array) $documentRefs;
         $documentSize = $size === '85x85' ? '85x85' : '100x100';
-        $method = 'printMarking' . $documentSize;
+        $method = 'printMarking'.$documentSize;
         // If needs link
         if ('html_link' == $type or 'pdf_link' == $type) {
             return $this->printGetLink($method, $documentRefs, $type);
