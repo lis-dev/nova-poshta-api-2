@@ -244,6 +244,7 @@ class NovaPoshtaApi2
             'language' => $this->language,
             'methodProperties' => $params,
         );
+        $result = array();
         // Convert data to neccessary format
         $post = 'xml' == $this->format
             ? $this->array2xml($data)
