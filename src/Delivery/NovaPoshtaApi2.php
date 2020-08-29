@@ -570,7 +570,7 @@ class NovaPoshtaApi2
             // If cities more then one, calculate current by area name
             $data = (count($cities['data']) > 1)
                 ? $this->findCityByRegion($cities, $areaName)
-                : $cities['data'][0];
+                : array($cities['data'][0]);
         }
         // Error
         $error = array();
@@ -579,7 +579,7 @@ class NovaPoshtaApi2
         return $this->prepare(
             array(
                 'success' => empty($error),
-                'data' => array($data),
+                'data' => $data,
                 'errors' => $error,
                 'warnings' => array(),
                 'info' => array(),
