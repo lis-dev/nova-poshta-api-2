@@ -193,7 +193,7 @@ $result = $np->newInternetDocument(
 ```php
 // В параметрах указывается город и область (для более точного поиска)
 $city = $np->getCity('Киев', 'Киевская');
-$result = $np->getWarehouses($city);
+$result = $np->getWarehouses($city['data'][0]['Ref']);
 ```
 ## Вызов произвольного метода
 ```php
