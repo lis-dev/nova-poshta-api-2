@@ -575,7 +575,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
             'db5c88d1-391c-11dd-90d9-001a92567626',
             '8d5a980d-391c-11dd-90d9-001a92567626',
             'WarehouseWarehouse',
-            date('d.m.Y')
+            date('d.m.Y', time() + 60 * 60 * 4)
         );
         $this->assertTrue($result['success']);
     }

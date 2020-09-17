@@ -581,10 +581,14 @@ class NovaPoshtaApi2
         if (count($data) > 1 && $warehouseDescription) {
             foreach ($data as $cityData) {
                 $warehouseData = $this->getWarehouse($cityData['Ref'], $warehouseDescription);
-                if (!$warehouseData) {
+                $warehouseDescriptions = array(
+                    $warehouseData['data'][0]['Description'], 
+                    $warehouseData['data'][0]['DescriptionRu']
+                );
+                if (in_array($warehouseDescription, $warehouseDescriptions)) {
+                    $data = array($cityData);
                     break;
                 }
-                $data = array($cityData);
             }
         }
         // Error
