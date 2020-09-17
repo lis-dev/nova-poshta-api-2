@@ -412,9 +412,8 @@ class NovaPoshtaApi2
         $error = array();
         $data = array();
         if (is_array($warehouses['data'])) {
-            if (1 === count($warehouses['data']) or !$description) {
-                $data = $warehouses['data'][0];
-            } elseif (count($warehouses['data']) > 1) {
+            $data = $warehouses['data'][0];
+            if (count($warehouses['data']) > 1 && $description) {
                 foreach ($warehouses['data'] as $warehouse) {
                     if (false !== mb_stripos($warehouse['Description'], $description)
                     or false !== mb_stripos($warehouse['DescriptionRu'], $description)) {
@@ -563,10 +562,11 @@ class NovaPoshtaApi2
      *
      * @param string $cityName City's name
      * @param string $areaName Region's name
+     * @param string $warehouseDescription Warehouse description to identiry needed city (if it more than 1 in the area)
      *
-     * @return array City's data
+     * @return array Cities's data Can be returned more than 1 city with the same name
      */
-    public function getCity($cityName, $areaName = '')
+    public function getCity($cityName, $areaName = '', $warehouseDescription = '')
     {
         // Get cities by name
         $cities = $this->getCities(0, $cityName);
@@ -576,6 +576,16 @@ class NovaPoshtaApi2
             $data = (count($cities['data']) > 1)
                 ? $this->findCityByRegion($cities, $areaName)
                 : array($cities['data'][0]);
+        }
+        // Try to identify city by one of warehouses descriptions
+        if (count($data) > 1 && $warehouseDescription) {
+            foreach ($data as $cityData) {
+                $warehouseData = $this->getWarehouse($cityData['Ref'], $warehouseDescription);
+                if (!$warehouseData) {
+                    break;
+                }
+                $data = array($cityData);
+            }
         }
         // Error
         $error = array();
@@ -877,7 +887,7 @@ class NovaPoshtaApi2
         }
 
         // Set defaults
-        if (!$counterparty['CounterpartyType']) {
+        if (empty($counterparty['CounterpartyType'])) {
             $counterparty['CounterpartyType'] = 'PrivatePerson';
         }
     }
@@ -898,13 +908,14 @@ class NovaPoshtaApi2
         if (!$params['Cost']) {
             throw new \Exception('Cost is required filed for new Internet document');
         }
-        (!$params['DateTime']) and $params['DateTime'] = date('d.m.Y');
-        (!$params['ServiceType']) and $params['ServiceType'] = 'WarehouseWarehouse';
-        (!$params['PaymentMethod']) and $params['PaymentMethod'] = 'Cash';
-        (!$params['PayerType']) and $params['PayerType'] = 'Recipient';
-        (!$params['SeatsAmount']) and $params['SeatsAmount'] = '1';
-        (!$params['CargoType']) and $params['CargoType'] = 'Cargo';
-        (!$params['VolumeGeneral']) and $params['VolumeGeneral'] = '0.0004';
+        empty($params['DateTime']) and $params['DateTime'] = date('d.m.Y');
+        empty($params['ServiceType']) and $params['ServiceType'] = 'WarehouseWarehouse';
+        empty($params['PaymentMethod']) and $params['PaymentMethod'] = 'Cash';
+        empty($params['PayerType']) and $params['PayerType'] = 'Recipient';
+        empty($params['SeatsAmount']) and $params['SeatsAmount'] = '1';
+        empty($params['CargoType']) and $params['CargoType'] = 'Cargo';
+        empty($params['VolumeGeneral']) and $params['VolumeGeneral'] = '0.0004';
+        empty($params['VolumeWeight']) and $params['VolumeWeight'] = $params['Weight'];
     }
 
     /**
@@ -934,47 +945,47 @@ class NovaPoshtaApi2
         // Check for required params and set defaults
         $this->checkInternetDocumentRecipient($recipient);
         $this->checkInternetDocumentParams($params);
-        if (!$sender['CitySender']) {
-            $senderCity = $this->getCity($sender['City'], $sender['Region']);
+        if (empty($sender['CitySender'])) {
+            $senderCity = $this->getCity($sender['City'], $sender['Region'], $sender['Warehouse']);
             $sender['CitySender'] = $senderCity['data'][0]['Ref'];
         }
         $sender['CityRef'] = $sender['CitySender'];
-        if (!$sender['SenderAddress'] and $sender['CitySender'] and $sender['Warehouse']) {
+        if (empty($sender['SenderAddress']) and $sender['CitySender'] and $sender['Warehouse']) {
             $senderWarehouse = $this->getWarehouse($sender['CitySender'], $sender['Warehouse']);
             $sender['SenderAddress'] = $senderWarehouse['data'][0]['Ref'];
         }
-        if (!$sender['Sender']) {
+        if (empty($sender['Sender'])) {
             $sender['CounterpartyProperty'] = 'Sender';
             $fullName = trim($sender['LastName'].' '.$sender['FirstName'].' '.$sender['MiddleName']);
             // Set full name to Description if is not set
-            if (!$sender['Description']) {
+            if (empty($sender['Description'])) {
                 $sender['Description'] = $fullName;
             }
             // Check for existing sender
             $senderCounterpartyExisting = $this->getCounterparties('Sender', 1, $fullName, $sender['CityRef']);
             // Copy user to the selected city if user doesn't exists there
-            if ($senderCounterpartyExisting['data'][0]['Ref']) {
+            if (isset($senderCounterpartyExisting['data'][0]['Ref'])) {
                 // Counterparty exists
                 $sender['Sender'] = $senderCounterpartyExisting['data'][0]['Ref'];
                 $contactSender = $this->getCounterpartyContactPersons($sender['Sender']);
                 $sender['ContactSender'] = $contactSender['data'][0]['Ref'];
-                $sender['SendersPhone'] = $sender['Phone'] ? $sender['Phone'] : $contactSender['data'][0]['Phones'];
+                $sender['SendersPhone'] = isset($sender['Phone']) ? $sender['Phone'] : $contactSender['data'][0]['Phones'];
             }
         }
 
         // Prepare recipient data
         $recipient['CounterpartyProperty'] = 'Recipient';
         $recipient['RecipientsPhone'] = $recipient['Phone'];
-        if (!$recipient['CityRecipient']) {
-            $recipientCity = $this->getCity($recipient['City'], $recipient['Region']);
+        if (empty($recipient['CityRecipient'])) {
+            $recipientCity = $this->getCity($recipient['City'], $recipient['Region'], $recipient['Warehouse']);
             $recipient['CityRecipient'] = $recipientCity['data'][0]['Ref'];
         }
         $recipient['CityRef'] = $recipient['CityRecipient'];
-        if (!$recipient['RecipientAddress']) {
+        if (empty($recipient['RecipientAddress'])) {
             $recipientWarehouse = $this->getWarehouse($recipient['CityRecipient'], $recipient['Warehouse']);
             $recipient['RecipientAddress'] = $recipientWarehouse['data'][0]['Ref'];
         }
-        if (!$recipient['Recipient']) {
+        if (empty($recipient['Recipient'])) {
             $recipientCounterparty = $this->model('Counterparty')->save($recipient);
             $recipient['Recipient'] = $recipientCounterparty['data'][0]['Ref'];
             $recipient['ContactRecipient'] = $recipientCounterparty['data'][0]['ContactPerson']['data'][0]['Ref'];
