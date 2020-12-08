@@ -161,7 +161,7 @@ $result = $np->newInternetDocument(
         'ServiceType' => 'WarehouseWarehouse',
         // Тип оплати, додатково - getPaymentForms()
         'PaymentMethod' => 'Cash',
-        // Кто сплачує доставку
+        // Хто сплачує доставку
         'PayerType' => 'Recipient',
         // Вартуість вантажу в грн
         'Cost' => '500',
