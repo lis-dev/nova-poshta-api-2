@@ -918,8 +918,10 @@ class NovaPoshtaApi2
         empty($params['PayerType']) and $params['PayerType'] = 'Recipient';
         empty($params['SeatsAmount']) and $params['SeatsAmount'] = '1';
         empty($params['CargoType']) and $params['CargoType'] = 'Cargo';
-        empty($params['VolumeGeneral']) and $params['VolumeGeneral'] = '0.0004';
-        empty($params['VolumeWeight']) and $params['VolumeWeight'] = $params['Weight'];
+        if($params['CargoType'] != 'Documents') {
+            empty($params['VolumeGeneral']) and $params['VolumeGeneral'] = '0.0004';
+            empty($params['VolumeWeight']) and $params['VolumeWeight'] = $params['Weight'];
+        }
     }
 
     /**
