@@ -1,3 +1,5 @@
+Документація українською мовою доступна [за посиланням](https://github.com/lis-dev/nova-poshta-api-2/blob/master/README.ua.md)
+
 [![Build Status](https://travis-ci.com/lis-dev/nova-poshta-api-2.svg?branch=master)](https://travis-ci.com/lis-dev/nova-poshta-api-2)
 
 # Nova Poshta API 2.0
