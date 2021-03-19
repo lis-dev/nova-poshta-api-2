@@ -45,6 +45,9 @@ class NovaPoshtaApi2
      */
     protected $connectionType = 'curl';
 
+    /** @var int Connection timeout (in seconds) */
+    protected $timeout = 0;
+
     /**
      * @var string Areas (loaded from file, because there is no so function in NovaPoshta API 2.0)
      */
@@ -129,6 +132,26 @@ class NovaPoshtaApi2
     public function getConnectionType()
     {
         return $this->connectionType;
+    }
+
+    /**
+     * @param int $timeout
+     *
+     * @return $this
+     */
+    public function setTimeout($timeout)
+    {
+        $this->timeout = (int)$timeout;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTimeout()
+    {
+        return $this->timeout;
     }
 
     /**
@@ -259,16 +282,28 @@ class NovaPoshtaApi2
                 curl_setopt($ch, CURLOPT_POST, 1);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+
+                if ($this->timeout > 0) {
+                    curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
+                    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->timeout);
+                }
+
                 $result = curl_exec($ch);
                 curl_close($ch);
             }
         } else {
+            $httpOptions = array(
+                'method' => 'POST',
+                'header' => "Content-type: application/x-www-form-urlencoded;\r\n",
+                'content' => $post,
+            );
+
+            if ($this->timeout > 0) {
+                $httpOptions['timeout'] = $this->timeout;
+            }
+
             $result = file_get_contents($url, false, stream_context_create(array(
-                'http' => array(
-                    'method' => 'POST',
-                    'header' => "Content-type: application/x-www-form-urlencoded;\r\n",
-                    'content' => $post,
-                ),
+                'http' => $httpOptions,
             )));
         }
 
