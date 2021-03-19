@@ -289,6 +289,15 @@ class NovaPoshtaApi2
                 }
 
                 $result = curl_exec($ch);
+
+                if (curl_errno($ch)) {
+                    $e = new \Exception(curl_error($ch), curl_errno($ch));
+
+                    curl_close($ch);
+
+                    throw $e;
+                }
+
                 curl_close($ch);
             }
         } else {
