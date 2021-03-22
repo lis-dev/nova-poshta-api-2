@@ -11,6 +11,8 @@ use LisDev\Delivery\NovaPoshtaApi2;
  */
 class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
 {
+    private static $createdDocumentsRefs = array();
+
     /**
      * Key for connection.
      *
@@ -31,33 +33,33 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      *
      * @var NovaPoshtaApi2
      */
-    private $np;
+    private static $np;
 
-    /**
-     * Set up before class.
-     */
+    protected function setUp()
+    {
+        self::$np = new NovaPoshtaApi2(self::$key);
+    }
+
     public static function setUpBeforeClass()
     {
-        // Disable notices
-        error_reporting(E_ALL ^ E_NOTICE);
         !self::$key and self::$key = getenv('NOVA_POSHTA_API2_KEY');
     }
 
-    /**
-     * Set up before each test.
-     */
-    public function setUp()
+    public static function tearDownAfterClass()
     {
-        // Create new instance
-        $this->np = new NovaPoshtaApi2(self::$key);
+        // Remove internet documents created in this test
+        self::$np->model('InternetDocument');
+        foreach(self::$createdDocumentsRefs as $ref) {
+            self::$np->delete(array('DocumentRefs' => $ref));
+        }
     }
 
     /**
-     * Test connectin via file_get_contents().
+     * Test connection via file_get_contents().
      */
     public function testSetConnectionType()
     {
-        $result = $this->np->setConnectionType('file_get_contents');
+        $result = self::$np->setConnectionType('file_get_contents');
         $this->assertInstanceOf('LisDev\Delivery\NovaPoshtaApi2', $result);
     }
 
@@ -66,7 +68,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetConnectionType()
     {
-        $result = $this->np->getConnectionType();
+        $result = self::$np->getConnectionType();
         $this->assertNotEmpty($result);
     }
 
@@ -75,8 +77,8 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetKey()
     {
-        $result = $this->np->getKey();
-        $this->assertTrue('' != $result);
+        $result = self::$np->getKey();
+        $this->assertNotEmpty($result);
     }
 
     /**
@@ -84,8 +86,8 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetFormat()
     {
-        $result = $this->np->getFormat();
-        $this->assertTrue('' != $result);
+        $result = self::$np->getFormat();
+        $this->assertNotEmpty($result);
     }
 
     /**
@@ -93,7 +95,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testDocumentsTrackingResultArray()
     {
-        $result = $this->np->documentsTracking($this->testTrackNumber);
+        $result = self::$np->documentsTracking($this->testTrackNumber);
 
         $this->assertTrue($result['success']);
     }
@@ -103,7 +105,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testRequestViaFileGetContent()
     {
-        $result = $this->np->setConnectionType('file_get_content')->documentsTracking($this->testTrackNumber);
+        $result = self::$np->setConnectionType('file_get_content')->documentsTracking($this->testTrackNumber);
         $this->assertTrue($result['success']);
     }
 
@@ -112,7 +114,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testDocumentsTrackingResultJson()
     {
-        $result = $this->np->setFormat('json')->documentsTracking($this->testTrackNumber);
+        $result = self::$np->setFormat('json')->documentsTracking($this->testTrackNumber);
         $result = json_decode($result, 1);
         $this->assertTrue($result['success']);
     }
@@ -122,7 +124,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testDocumentsTrackingResultJsonXml()
     {
-        $result = $this->np->setFormat('xml')->documentsTracking($this->testTrackNumber);
+        $result = self::$np->setFormat('xml')->documentsTracking($this->testTrackNumber);
         $result = simplexml_load_string($result);
         $result = json_encode($result);
         $result = json_decode($result, 1);
@@ -136,7 +138,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetCities($cityPage, $cityRef, $cityName)
     {
-        $result = $this->np->getCities($cityPage, $cityRef, $cityName);
+        $result = self::$np->getCities($cityPage, $cityRef, $cityName);
         $this->assertTrue($result['success']);
     }
 
@@ -157,7 +159,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetWarehouses()
     {
-        $result = $this->np->getWarehouses('a9280688-94c0-11e3-b441-0050568002cf');
+        $result = self::$np->getWarehouses('a9280688-94c0-11e3-b441-0050568002cf');
 
         $this->assertTrue($result['success']);
     }
@@ -167,7 +169,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testFindNearestWarehouse()
     {
-        $result = $this->np->findNearestWarehouse(array('Одесса', 'Донецкая область'));
+        $result = self::$np->findNearestWarehouse(array('Одесса', 'Донецкая область'));
         $this->assertTrue($result['success']);
     }
 
@@ -176,7 +178,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetStreet()
     {
-        $result = $this->np->getStreet('a9280688-94c0-11e3-b441-0050568002cf');
+        $result = self::$np->getStreet('a9280688-94c0-11e3-b441-0050568002cf');
         $this->assertTrue($result['success']);
     }
 
@@ -187,7 +189,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetArea($areaName, $areaRef)
     {
-        $result = $this->np->getArea($areaName, $areaRef);
+        $result = self::$np->getArea($areaName, $areaRef);
         $this->assertTrue($result['success']);
     }
 
@@ -214,7 +216,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetAreaEmpty()
     {
-        $result = $this->np->getArea('', '');
+        $result = self::$np->getArea('', '');
         $this->assertFalse($result['success']);
     }
 
@@ -223,7 +225,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetAreas()
     {
-        $result = $this->np->getAreas();
+        $result = self::$np->getAreas();
         $this->assertTrue($result['success']);
     }
 
@@ -234,7 +236,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetCity($cityName, $regionName)
     {
-        $result = $this->np->getCity($cityName, $regionName);
+        $result = self::$np->getCity($cityName, $regionName);
         $this->assertTrue($result['success']);
     }
 
@@ -256,7 +258,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testLanguageGet()
     {
-        $language = $this->np->getLanguage();
+        $language = self::$np->getLanguage();
         $this->assertNotEmpty($language);
     }
 
@@ -267,7 +269,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetCommon($method)
     {
-        $result = $this->np->$method();
+        $result = self::$np->$method();
         $this->assertTrue($result['success']);
     }
 
@@ -301,7 +303,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetCommonError()
     {
-        $result = $this->np->someUnregisteredMethod();
+        $result = self::$np->someUnregisteredMethod();
         $this->assertEmpty($result);
     }
 
@@ -310,7 +312,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testCounterpartySave()
     {
-        $result = $this->np->model('Counterparty')->save(array(
+        $result = self::$np->model('Counterparty')->save(array(
             'CounterpartyProperty' => 'Recipient',
             'CityRef' => 'f4890a83-8344-11df-884b-000c290fbeaa',
             'CounterpartyType' => 'PrivatePerson',
@@ -331,7 +333,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testCounterpartyOrganizationSave()
     {
-        $result = $this->np->model('Counterparty')->save(array(
+        $result = self::$np->model('Counterparty')->save(array(
             'CounterpartyProperty' => 'Recipient',
             'CityRef' => 'f4890a83-8344-11df-884b-000c290fbeaa',
             'CounterpartyType' => 'Organization',
@@ -359,7 +361,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testCounterpartyUpdate($ref)
     {
-        $result = $this->np->model('Counterparty')->update(array(
+        $result = self::$np->model('Counterparty')->update(array(
             'Ref' => $ref,
             'CounterpartyProperty' => 'Recipient',
             // City code of 'Андреевка (Харьков)'
@@ -381,7 +383,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testContactPersonSave($ref)
     {
-        $result = $this->np->model('ContactPerson')->save(array(
+        $result = self::$np->model('ContactPerson')->save(array(
             'CounterpartyRef' => $ref,
             'FirstName' => 'Сидоров',
             'MiddleName' => 'Иванович',
@@ -401,8 +403,8 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testContactPersonUpdate($counterpartyRef)
     {
-        $existedContactPerson = $this->np->getCounterpartyContactPersons($counterpartyRef);
-        $result = $this->np->model('ContactPerson')->update(array(
+        $existedContactPerson = self::$np->getCounterpartyContactPersons($counterpartyRef);
+        $result = self::$np->model('ContactPerson')->update(array(
             'Ref' => $existedContactPerson['data'][0]['Ref'],
             'CounterpartyRef' => $counterpartyRef,
             'FirstName' => 'Петр',
@@ -421,7 +423,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testContactPersonDelete($ref)
     {
-        $result = $this->np->model('ContactPerson')->delete(array('Ref' => $ref));
+        $result = self::$np->model('ContactPerson')->delete(array('Ref' => $ref));
         // ContactPerson of natural counterparty cannot be removed, so there test assertFalse
         $this->assertTrue($result['success']);
     }
@@ -433,7 +435,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetCounterparties($counterpartyProperty, $page, $findByString, $cityRef)
     {
-        $result = $this->np->getCounterparties($counterpartyProperty, $page, $findByString, $cityRef);
+        $result = self::$np->getCounterparties($counterpartyProperty, $page, $findByString, $cityRef);
         $this->assertTrue($result['success']);
     }
 
@@ -457,7 +459,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetCounterpartyContactPersons($ref)
     {
-        $result = $this->np->getCounterpartyContactPersons($ref);
+        $result = self::$np->getCounterpartyContactPersons($ref);
         $this->assertTrue($result['success']);
     }
 
@@ -468,7 +470,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetCounterpartyOptions($ref)
     {
-        $result = $this->np->getCounterpartyOptions($ref);
+        $result = self::$np->getCounterpartyOptions($ref);
         $this->assertTrue($result['success']);
     }
 
@@ -479,7 +481,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetCounterpartyAddresses($ref)
     {
-        $result = $this->np->getCounterpartyAddresses($ref);
+        $result = self::$np->getCounterpartyAddresses($ref);
         $this->assertTrue($result['success']);
     }
 
@@ -492,7 +494,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
     /*
     public function testGetCounterpartyByEDRPOU()
     {
-        $result = $this->np->getCounterpartyByEDRPOU('12345678', 'f4890a83-8344-11df-884b-000c290fbeaa');
+        $result = self::$np->getCounterpartyByEDRPOU('12345678', 'f4890a83-8344-11df-884b-000c290fbeaa');
          $this->assertEmpty($result['success']);
     }
     */
@@ -502,7 +504,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      *
      * @depends testCounterpartyOrganizationSave
     function testCounterpartyOrganizationDelete($params) {
-        $result = $this->np->model('Counterparty')->delete(array('Ref' => $params['Ref']));
+        $result = self::$np->model('Counterparty')->delete(array('Ref' => $params['Ref']));
         $this->assertTrue($result['success']);
     }
      */
@@ -516,7 +518,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testCounterpartyDelete($ref)
     {
-        $result = $this->np->model('Counterparty')->delete(array('Ref' => $ref));
+        $result = self::$np->model('Counterparty')->delete(array('Ref' => $ref));
 
         $this->assertFalse($result['success']);
     }
@@ -526,7 +528,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testCloneLoyaltyCounterpartySender()
     {
-        $result = $this->np->cloneLoyaltyCounterpartySender('f4890a83-8344-11df-884b-000c290fbeaa');
+        $result = self::$np->cloneLoyaltyCounterpartySender('f4890a83-8344-11df-884b-000c290fbeaa');
         $this->assertTrue($result['success']);
         return $result;
     }
@@ -536,7 +538,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetWarehouseManyInCity()
     {
-        $result = $this->np->getWarehouse('db5c88d1-391c-11dd-90d9-001a92567626', 'Відділення №1: вул. Маяковського, 59а');
+        $result = self::$np->getWarehouse('db5c88d1-391c-11dd-90d9-001a92567626', 'Відділення №1: вул. Маяковського, 59а');
 
         $this->assertTrue($result['success']);
     }
@@ -546,7 +548,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetWarehouseOneInCity()
     {
-        $result = $this->np->getWarehouse('db5c88d1-391c-11dd-90d9-001a92567626');
+        $result = self::$np->getWarehouse('db5c88d1-391c-11dd-90d9-001a92567626');
 
         $this->assertTrue($result['success']);
     }
@@ -556,7 +558,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetDocumentPrice()
     {
-        $result = $this->np->getDocumentPrice(
+        $result = self::$np->getDocumentPrice(
             'db5c88d1-391c-11dd-90d9-001a92567626',
             '8d5a980d-391c-11dd-90d9-001a92567626',
             'WarehouseWarehouse',
@@ -571,7 +573,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetDocumentDeliveryDate()
     {
-        $result = $this->np->getDocumentDeliveryDate(
+        $result = self::$np->getDocumentDeliveryDate(
             'db5c88d1-391c-11dd-90d9-001a92567626',
             '8d5a980d-391c-11dd-90d9-001a92567626',
             'WarehouseWarehouse',
@@ -581,22 +583,12 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * getDocumentList().
-     */
-    public function testGetDocumentList($params = null)
-    {
-        $result = $this->np->getDocumentList();
-        $this->assertTrue($result['success']);
-        return $result['data'][0]['Ref'];
-    }
-
-    /**
      * generateReport().
      */
     public function testGenerateReport()
     {
         // Must return xls with headers
-        $result = $this->np->generateReport(array('Type' => 'xls', 'DocumentRefs' => array('1fb8943e-14e4-11e5-ad08-005056801333'), 'DateTime' => date('d.m.Y')));
+        $result = self::$np->generateReport(array('Type' => 'xls', 'DocumentRefs' => array('1fb8943e-14e4-11e5-ad08-005056801333'), 'DateTime' => date('d.m.Y')));
         $this->assertEmpty($result);
     }
 
@@ -605,9 +597,14 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testNewInternetDocumentGetSender()
     {
-        $existingSender = $this->np->getCounterparties('Sender', 1, '', '');
+        $existingSender = self::$np->getCounterparties('Sender', 1, '', '');
         $this->assertNotEmpty($existingSender['data'][0]);
-        return $existingSender['data'][0];
+
+        return array_merge($existingSender['data'][0], array(
+            'City' => 'Киев',
+            'Region' => 'Киевская',
+            'Warehouse' => 'Отделение №1: ул. Пироговский путь, 135',
+        ));
     }
 
     /**
@@ -621,14 +618,14 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testNewInternetDocument($sender)
     {
-        $result = $this->np->newInternetDocument(
+        $result = self::$np->newInternetDocument(
             array(
                 'LastName' => $sender['LastName'],
                 'FirstName' => $sender['FirstName'],
                 'MiddleName' => $sender['MiddleName'],
-                'City' => 'Киев',
-                'Region' => 'Киевская',
-                'Warehouse' => 'Отделение №1: ул. Пироговский путь, 135',
+                'City' => $sender['City'],
+                'Region' => $sender['Region'],
+                'Warehouse' => $sender['Warehouse'],
             ),
             array(
                 'FirstName' => 'Сидор',
@@ -654,8 +651,19 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertTrue($result['success']);
+        
+        self::$createdDocumentsRefs[] = $result['data'][0]['Ref'];
 
         return $result['data'][0]['Ref'];
+    }
+    
+    /**
+     * @depends testNewInternetDocument
+     */
+    public function testGetDocumentList()
+    {
+        $result = self::$np->getDocumentList();
+        $this->assertTrue($result['success']);
     }
 
     /**
@@ -665,7 +673,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetDocument($ref)
     {
-        $result = $this->np->getDocument($ref);
+        $result = self::$np->getDocument($ref);
         $this->assertTrue($result['success']);
     }
 
@@ -680,7 +688,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
         There is unexsisted DocumentRef, because if will real id there will not
         any chance delete this tested document
         */
-        $result = $this->np->printDocument('123');
+        $result = self::$np->printDocument('123');
 
         // Code of 'Document not found'
         $this->assertEquals('20000300415', $result['errorCodes'][0]);
@@ -697,7 +705,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
          There is unexsisted DocumentRef, because if will real id there will not
          any chance delete this tested document
          */
-        $result = $this->np->printDocument('123', 'html_link');
+        $result = self::$np->printDocument('123', 'html_link');
         $this->assertTrue($result['success']);
     }
 
@@ -707,7 +715,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
         There is unexsisted DocumentRef, because if will real id there will not
         any chance delete this tested document
         */
-        $result = $this->np->printMarkings('123');
+        $result = self::$np->printMarkings('123');
 
         // Code of 'Document does not exist'
         $this->assertEquals('20000202552', $result['errorCodes'][0]);
@@ -719,7 +727,78 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
          There is unexsisted DocumentRef, because if will real id there will not
          any chance delete this tested document
          */
-        $result = $this->np->printMarkings('123', 'html_link');
+        $result = self::$np->printMarkings('123', 'html_link');
         $this->assertTrue($result['success']);
+    }
+
+    // TODO Address can be changed by NovaPoshta
+    public function testGetCityKamyanske()
+    {
+        $result = self::$np->getCity("Кам'янське", 'Дніпропетровська', 'Відділення №12 (до 30 кг): бульв. Будівельників, 27а (маг.VARUS, ТЦ"Терра")');
+
+        $this->assertEquals('db5c88ed-391c-11dd-90d9-001a92567626', $result['data'][0]['Ref']);
+    }
+
+    // TODO Address can be changed by NovaPoshta
+    public function testGetCityKamyanskeByFullName()
+    {
+        $result = self::$np->getCity("Кам'янське(Дніпропетровська обл)");
+        
+        $this->assertCount(1, $result['data']);
+        $this->assertEquals('db5c88ed-391c-11dd-90d9-001a92567626', $result['data'][0]['Ref']);
+    }
+
+    // TODO Warehouse can be closed in the settlement
+    public function testGetCityKamyanskeNikopolskyDistrict()
+    {
+        $result = self::$np->getCity("Кам'янське", 'Дніпропетровська');
+        
+        $this->assertEquals('8715313e-9e6b-11e9-898c-005056b24375', $result['data'][0]['Ref']);
+    }
+
+    public function testNewInternetDocumentKamyanske()
+    {
+        $sender = $this->testNewInternetDocumentGetSender();
+        $sender = array_merge($sender, array(
+            'City' => "Кам'янське",
+            'Region' => 'Дніпропетровська',
+            'Warehouse' => 'Відділення №12 (до 30 кг): бульв. Будівельників, 27а (маг.VARUS, ТЦ"Терра")',
+        ));
+        $ref = $this->testNewInternetDocument($sender);
+        $document = self::$np->getDocument($ref);
+        self::$createdDocumentsRefs[] = $ref;
+
+        $this->assertEquals('db5c88ed-391c-11dd-90d9-001a92567626', $document['data'][0]['CitySenderRef']);
+    }
+
+    
+    public function testNewInternetDocumentKamyanskeDnipropetrovskArea()
+    {
+        $sender = $this->testNewInternetDocumentGetSender();
+        $sender = array_merge($sender, array(
+            'City' => "Кам'янське(Дніпропетровська обл)",
+            'Region' => 'Дніпропетровська',
+            'Warehouse' => 'Відділення №12',
+        ));
+        $ref = $this->testNewInternetDocument($sender);
+        $document = self::$np->getDocument($ref);
+        self::$createdDocumentsRefs[] = $ref;
+
+        $this->assertEquals('db5c88ed-391c-11dd-90d9-001a92567626', $document['data'][0]['CitySenderRef']);
+    }
+
+    public function testNewInternetDocumentKamyanskeNikopolskyDistrict()
+    {
+        $sender = $this->testNewInternetDocumentGetSender();
+        $sender = array_merge($sender, array(
+            'City' => "Кам'янське",
+            'Region' => 'Дніпропетровська',
+            'Warehouse' => '',
+        ));
+        $ref = $this->testNewInternetDocument($sender);
+        $document = self::$np->getDocument($ref);
+        self::$createdDocumentsRefs[] = $ref;
+
+        $this->assertEquals('8715313e-9e6b-11e9-898c-005056b24375', $document['data'][0]['CitySenderRef']);
     }
 }
