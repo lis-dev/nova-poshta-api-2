@@ -453,6 +453,7 @@ class NovaPoshtaApi2
      */
     public function getWarehouse($cityRef, $description = '')
     {
+        $error='';
         $warehouses = $this->getWarehouses($cityRef);
         $error = array();
         $data = array();
@@ -543,6 +544,7 @@ class NovaPoshtaApi2
      */
     public function getArea($findByString = '', $ref = '')
     {
+        $error='';
         // Load areas list from file
         empty($this->areas) and $this->areas = (include dirname(__FILE__).'/NovaPoshtaApi2Areas.php');
         $data = $this->findArea($this->areas, $findByString, $ref);
@@ -613,6 +615,7 @@ class NovaPoshtaApi2
      */
     public function getCity($cityName, $areaName = '', $warehouseDescription = '')
     {
+        $error='';
         // Get cities by name
         $cities = $this->getCities(0, $cityName);
         $data = array();
