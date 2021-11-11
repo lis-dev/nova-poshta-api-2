@@ -275,7 +275,7 @@ class NovaPoshtaApi2
 
         if ('curl' == $this->getConnectionType()) {
             $ch = curl_init($url);
-            if (is_resource($ch)) {
+            if ($this->isValidCurlHandler($ch)) {
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: '.('xml' == $this->format ? 'text/xml' : 'application/json')));
                 curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -1111,5 +1111,10 @@ class NovaPoshtaApi2
         }
         // If needs data
         return $this->request('InternetDocument', $method, array('DocumentRefs' => $documentRefs, 'Type' => $type));
+    }
+
+    private function isValidCurlHandler($ch)
+    {
+        return is_resource($ch) || (version_compare(PHP_VERSION, '8.0.0') >= 0 && $ch instanceof \CurlHandle);
     }
 }
