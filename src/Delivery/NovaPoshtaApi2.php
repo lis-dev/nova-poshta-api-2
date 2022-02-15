@@ -1,6 +1,9 @@
-<?php
+<?php /** @noinspection CurlSslServerSpoofingInspection */
 
 namespace LisDev\Delivery;
+
+use RuntimeException;
+use SimpleXMLElement;
 
 /**
  * Nova Poshta API Class.
@@ -71,12 +74,10 @@ class NovaPoshtaApi2
     /**
      * Default constructor.
      *
-     * @param string $key            NovaPoshta API key
-     * @param string $language       Default Language
-     * @param bool   $throwErrors    Throw request errors as Exceptions
-     * @param string   $connectionType Connection type (curl | file_get_contents)
-     *
-     * @return NovaPoshtaApi2
+     * @param string $key NovaPoshta API key
+     * @param string $language Default Language
+     * @param bool $throwErrors Throw request errors as Exceptions
+     * @param string $connectionType Connection type (curl | file_get_contents)
      */
     public function __construct($key, $language = 'ru', $throwErrors = false, $connectionType = 'curl')
     {
@@ -206,17 +207,18 @@ class NovaPoshtaApi2
      * @param string|array $data
      *
      * @return mixed
+     * @throws RuntimeException
      */
     private function prepare($data)
     {
         // Returns array
-        if ('array' == $this->format) {
+        if ('array' === $this->format) {
             $result = is_array($data)
                 ? $data
                 : json_decode($data, true);
             // If error exists, throw Exception
-            if ($this->throwErrors and array_key_exists('errors', $result) and $result['errors']) {
-                throw new \Exception(is_array($result['errors']) ? implode("\n", $result['errors']) : $result['errors']);
+            if ($this->throwErrors && array_key_exists('errors', $result) && $result['errors']) {
+                throw new RuntimeException(is_array($result['errors']) ? implode("\n", $result['errors']) : $result['errors']);
             }
             return $result;
         }
@@ -228,11 +230,12 @@ class NovaPoshtaApi2
      * Converts array to xml.
      *
      * @param array $array
-     * @param \SimpleXMLElement|bool $xml
+     * @param SimpleXMLElement|bool $xml
+     * @return bool|string
      */
     private function array2xml(array $array, $xml = false)
     {
-        (false === $xml) and $xml = new \SimpleXMLElement('<root/>');
+        (false === $xml) and $xml = new SimpleXMLElement('<root/>');
         foreach ($array as $key => $value) {
             if (is_numeric($key)) {
                 $key = 'item';
@@ -249,16 +252,16 @@ class NovaPoshtaApi2
     /**
      * Make request to NovaPoshta API.
      *
-     * @param string $model  Model name
+     * @param string $model Model name
      * @param string $method Method name
-     * @param array  $params Required params
+     * @param array $params Required params
      */
     private function request($model, $method, $params = null)
     {
         // Get required URL
-        $url = 'xml' == $this->format
-            ? self::API_URI.'/xml/'
-            : self::API_URI.'/json/';
+        $url = 'xml' === $this->format
+            ? self::API_URI . '/xml/'
+            : self::API_URI . '/json/';
 
         $data = array(
             'apiKey' => $this->key,
@@ -268,16 +271,16 @@ class NovaPoshtaApi2
             'methodProperties' => $params,
         );
         $result = array();
-        // Convert data to neccessary format
-        $post = 'xml' == $this->format
+        // Convert data to necessary format
+        $post = 'xml' === $this->format
             ? $this->array2xml($data)
             : json_encode($data);
 
-        if ('curl' == $this->getConnectionType()) {
+        if ('curl' === $this->getConnectionType()) {
             $ch = curl_init($url);
-            if (is_resource($ch)) {
+            if (is_resource($ch) || 'CurlHandle' === get_class($ch)) {
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: '.('xml' == $this->format ? 'text/xml' : 'application/json')));
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: ' . ('xml' === $this->format ? 'text/xml' : 'application/json')));
                 curl_setopt($ch, CURLOPT_HEADER, 0);
                 curl_setopt($ch, CURLOPT_POST, 1);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
@@ -315,7 +318,7 @@ class NovaPoshtaApi2
      *
      * @param string $model
      *
-     * @return mixed
+     * @return NovaPoshtaApi2|string
      */
     public function model($model = '')
     {
@@ -326,6 +329,7 @@ class NovaPoshtaApi2
         $this->model = $model;
         $this->method = '';
         $this->params = array();
+
         return $this;
     }
 
@@ -334,7 +338,7 @@ class NovaPoshtaApi2
      *
      * @param string $method
      *
-     * @return mixed
+     * @return NovaPoshtaApi2|string
      */
     public function method($method = '')
     {
@@ -348,11 +352,11 @@ class NovaPoshtaApi2
     }
 
     /**
-     * Set params of current method/property property.
+     * Set params of current method/property.
      *
      * @param array $params
      *
-     * @return mixed
+     * @return NovaPoshtaApi2
      */
     public function params($params)
     {
@@ -387,9 +391,9 @@ class NovaPoshtaApi2
     /**
      * Get cities of company NovaPoshta.
      *
-     * @param int    $page         Num of page
+     * @param int $page Num of page
      * @param string $findByString Find city by russian or ukrainian word
-     * @param string $ref          ID of city
+     * @param string $ref ID of city
      *
      * @return mixed
      */
@@ -406,7 +410,7 @@ class NovaPoshtaApi2
      * Get warehouses by city.
      *
      * @param string $cityRef ID of city
-     * @param int    $page
+     * @param int $page
      *
      * @return mixed
      */
@@ -417,7 +421,7 @@ class NovaPoshtaApi2
             'Page' => $page,
         ));
     }
-    
+
     /**
      * Get warehouse types.
      *
@@ -426,7 +430,7 @@ class NovaPoshtaApi2
     public function getWarehouseTypes()
     {
         return $this->request('Address', 'getWarehouseTypes');
-    }    
+    }
 
     /**
      * Get 5 nearest warehouses by array of strings.
@@ -437,7 +441,7 @@ class NovaPoshtaApi2
      */
     public function findNearestWarehouse($searchStringArray)
     {
-        $searchStringArray = (array) $searchStringArray;
+        $searchStringArray = (array)$searchStringArray;
         return $this->request('Address', 'findNearestWarehouse', array(
             'SearchStringArray' => $searchStringArray,
         ));
@@ -446,8 +450,8 @@ class NovaPoshtaApi2
     /**
      * Get one warehouse by city name and warehouse's description.
      *
-     * @param string $cityRef     ID of city
-     * @param string $description Description like in getted by getWarehouses()
+     * @param string $cityRef ID of city
+     * @param string $description Description like in got by getWarehouses()
      *
      * @return mixed
      */
@@ -458,10 +462,10 @@ class NovaPoshtaApi2
         $data = array();
         if (is_array($warehouses['data'])) {
             $data = $warehouses['data'][0];
-            if (count($warehouses['data']) > 1 && $description) {
+            if ($description && count($warehouses['data']) > 1) {
                 foreach ($warehouses['data'] as $warehouse) {
                     if (false !== mb_stripos($warehouse['Description'], $description)
-                    or false !== mb_stripos($warehouse['DescriptionRu'], $description)) {
+                        || false !== mb_stripos($warehouse['DescriptionRu'], $description)) {
                         $data = $warehouse;
                         break;
                     }
@@ -475,19 +479,19 @@ class NovaPoshtaApi2
             array(
                 'success' => empty($error),
                 'data' => array($data),
-                'errors' => (array) $error,
+                'errors' => (array)$error,
                 'warnings' => array(),
                 'info' => array(),
-        )
+            )
         );
     }
 
     /**
      * Get streets list by city and/or search string.
      *
-     * @param string $cityRef      ID of city
+     * @param string $cityRef ID of city
      * @param string $findByString
-     * @param int    $page
+     * @param int $page
      *
      * @return mixed
      */
@@ -503,16 +507,16 @@ class NovaPoshtaApi2
     /**
      * Find current area in list of areas.
      *
-     * @param array  $areas        List of arias, getted from file
+     * @param array $areas List of arias, got from file
      * @param string $findByString Area name
-     * @param string $ref          Area Ref ID
+     * @param string $ref Area Ref ID
      *
      * @return array
      */
     protected function findArea(array $areas, $findByString = '', $ref = '')
     {
         $data = array();
-        if (!$findByString and !$ref) {
+        if (!$findByString && !$ref) {
             return $data;
         }
         // Try to find current region
@@ -523,7 +527,7 @@ class NovaPoshtaApi2
                     or (false !== mb_stripos($area['DescriptionRu'], $findByString))
                     or (false !== mb_stripos($area['Area'], $findByString))
                     or (false !== mb_stripos($area['AreaRu'], $findByString)))
-                : ($key == $ref);
+                : ($key === $ref);
             if ($found) {
                 $area['Ref'] = $key;
                 $data[] = $area;
@@ -537,14 +541,14 @@ class NovaPoshtaApi2
      * Get area by name or by ID.
      *
      * @param string $findByString Find area by russian or ukrainian word
-     * @param string $ref          Get area by ID
+     * @param string $ref Get area by ID
      *
      * @return array
      */
     public function getArea($findByString = '', $ref = '')
     {
         // Load areas list from file
-        empty($this->areas) and $this->areas = (include dirname(__FILE__).'/NovaPoshtaApi2Areas.php');
+        empty($this->areas) and $this->areas = (include __DIR__ . '/NovaPoshtaApi2Areas.php');
         $data = $this->findArea($this->areas, $findByString, $ref);
         // Error
         $error = array();
@@ -557,15 +561,15 @@ class NovaPoshtaApi2
                 'errors' => $error,
                 'warnings' => array(),
                 'info' => array(),
-        )
+            )
         );
     }
 
     /**
      * Get areas list by city and/or search string.
      *
-     * @param string $ref  ID of area
-     * @param int    $page
+     * @param string $ref ID of area
+     * @param int $page
      *
      * @return mixed
      */
@@ -580,7 +584,7 @@ class NovaPoshtaApi2
     /**
      * Find city from list by name of region.
      *
-     * @param array  $cities   Array from query getCities to NovaPoshta
+     * @param array $cities Array from query getCities to NovaPoshta
      * @param string $areaName
      *
      * @return array
@@ -592,9 +596,9 @@ class NovaPoshtaApi2
         // Get region id
         $area = $this->getArea($areaName);
         $area['success'] and $areaRef = $area['data'][0]['Ref'];
-        if ($areaRef and is_array($cities['data'])) {
+        if ($areaRef && is_array($cities['data'])) {
             foreach ($cities['data'] as $city) {
-                if ($city['Area'] == $areaRef) {
+                if ($city['Area'] === $areaRef) {
                     $data[] = $city;
                 }
             }
@@ -607,9 +611,9 @@ class NovaPoshtaApi2
      *
      * @param string $cityName City's name
      * @param string $areaName Region's name
-     * @param string $warehouseDescription Warehouse description to identiry needed city (if it more than 1 in the area)
+     * @param string $warehouseDescription Warehouse description to identify needed city (if it is more than 1 in the area)
      *
-     * @return array Cities's data Can be returned more than 1 city with the same name
+     * @return array Cities data Can be returned more than 1 city with the same name
      */
     public function getCity($cityName, $areaName = '', $warehouseDescription = '')
     {
@@ -617,20 +621,20 @@ class NovaPoshtaApi2
         $cities = $this->getCities(0, $cityName);
         $data = array();
         if (is_array($cities) && is_array($cities['data'])) {
-            // If cities more then one, calculate current by area name
+            // If cities more than one, calculate current by area name
             $data = (count($cities['data']) > 1)
                 ? $this->findCityByRegion($cities, $areaName)
                 : array($cities['data'][0]);
         }
         // Try to identify city by one of warehouses descriptions
-        if (count($data) > 1 && $warehouseDescription) {
+        if ($warehouseDescription && count($data) > 1) {
             foreach ($data as $cityData) {
                 $warehouseData = $this->getWarehouse($cityData['Ref'], $warehouseDescription);
                 $warehouseDescriptions = array(
-                    $warehouseData['data'][0]['Description'], 
+                    $warehouseData['data'][0]['Description'],
                     $warehouseData['data'][0]['DescriptionRu']
                 );
-                if (in_array($warehouseDescription, $warehouseDescriptions)) {
+                if (in_array($warehouseDescription, $warehouseDescriptions, true)) {
                     $data = array($cityData);
                     break;
                 }
@@ -647,15 +651,15 @@ class NovaPoshtaApi2
                 'errors' => $error,
                 'warnings' => array(),
                 'info' => array(),
-        )
+            )
         );
     }
 
     /**
      * Magic method of calling functions (uses for calling Common Model of NovaPoshta API).
      *
-     * @param string $method    Called method of Common Model
-     * @param array  $arguments Array of params
+     * @param string $method Called method of Common Model
+     * @param array $arguments Array of params
      */
     public function __call($method, $arguments)
     {
@@ -684,6 +688,7 @@ class NovaPoshtaApi2
                 ->params(null)
                 ->execute();
         }
+        throw new RuntimeException("Unknown method '$method' for model 'Common'");
     }
 
     /**
@@ -718,10 +723,10 @@ class NovaPoshtaApi2
      * Save method of current model
      * Required params:
      * For ContactPerson model (only for Organization API key, for PrivatePerson error will be returned):
-     *	 CounterpartyRef, FirstName (ukr), MiddleName, LastName, Phone (format 0xxxxxxxxx)
+     *     CounterpartyRef, FirstName (ukr), MiddleName, LastName, Phone (format 0xxxxxxxxx)
      * For Counterparty model:
-     *	 CounterpartyProperty (Recipient|Sender), CityRef, CounterpartyType (Organization, PrivatePerson),
-     *	 FirstName (or name of organization), MiddleName, LastName, Phone (0xxxxxxxxx), OwnershipForm (if Organization).
+     *     CounterpartyProperty (Recipient|Sender), CityRef, CounterpartyType (Organization, PrivatePerson),
+     *     FirstName (or name of organization), MiddleName, LastName, Phone (0xxxxxxxxx), OwnershipForm (if Organization).
      *
      * @param array $params
      *
@@ -736,9 +741,9 @@ class NovaPoshtaApi2
      * getCounterparties() function of model Counterparty.
      *
      * @param string $counterpartyProperty Type of Counterparty (Sender|Recipient)
-     * @param int    $page                 Page number
-     * @param string $findByString         String to search
-     * @param string $cityRef              City ID
+     * @param int $page Page number
+     * @param string $findByString String to search
+     * @param string $cityRef City ID
      *
      * @return mixed
      */
@@ -746,7 +751,7 @@ class NovaPoshtaApi2
     {
         // Any param can be skipped
         $params = array();
-        $params['CounterpartyProperty'] = $counterpartyProperty ? $counterpartyProperty : 'Recipient';
+        $params['CounterpartyProperty'] = $counterpartyProperty ?: 'Recipient';
         $page and $params['Page'] = $page;
         $findByString and $params['FindByString'] = $findByString;
         $cityRef and $params['City'] = $cityRef;
@@ -781,8 +786,8 @@ class NovaPoshtaApi2
     /**
      * getCounterpartyAddresses() function of model Counterparty.
      *
-     * @param string $ref  Counterparty ref
-     * @param int    $page
+     * @param string $ref Counterparty ref
+     * @param int $page
      *
      * @return mixed
      */
@@ -806,7 +811,7 @@ class NovaPoshtaApi2
     /**
      * getCounterpartyByEDRPOU() function of model Counterparty.
      *
-     * @param string $edrpou  EDRPOU code
+     * @param string $edrpou EDRPOU code
      * @param string $cityRef City ID
      *
      * @return mixed
@@ -819,11 +824,11 @@ class NovaPoshtaApi2
     /**
      * Get price of delivery between two cities.
      *
-     * @param string $citySender    City ID
+     * @param string $citySender City ID
      * @param string $cityRecipient City ID
-     * @param string $serviceType   (DoorsDoors|DoorsWarehouse|WarehouseWarehouse|WarehouseDoors)
-     * @param float  $weight
-     * @param float  $cost
+     * @param string $serviceType (DoorsDoors|DoorsWarehouse|WarehouseWarehouse|WarehouseDoors)
+     * @param float $weight
+     * @param float $cost
      *
      * @return mixed
      */
@@ -841,10 +846,10 @@ class NovaPoshtaApi2
     /**
      * Get approximately date of delivery between two cities.
      *
-     * @param string $citySender    City ID
+     * @param string $citySender City ID
      * @param string $cityRecipient City ID
-     * @param string $serviceType   (DoorsDoors|DoorsWarehouse|WarehouseWarehouse|WarehouseDoors)
-     * @param string $dateTime      Date of shipping
+     * @param string $serviceType (DoorsDoors|DoorsWarehouse|WarehouseWarehouse|WarehouseDoors)
+     * @param string $dateTime Date of shipping
      *
      * @return mixed
      */
@@ -878,7 +883,7 @@ class NovaPoshtaApi2
      */
     public function getDocumentList($params = null)
     {
-        return $this->request('InternetDocument', 'getDocumentList', $params ? $params : null);
+        return $this->request('InternetDocument', 'getDocumentList', $params ?: null);
     }
 
     /**
@@ -896,9 +901,9 @@ class NovaPoshtaApi2
     }
 
     /**
-     * Generetes report by Document refs.
+     * Generates report by Document refs.
      *
-     * @param array $params Params like getDocumentList with requiered keys
+     * @param array $params Params like getDocumentList with required keys
      *                      'Type' => [xls, csv], 'DocumentRefs' => []
      *
      * @return mixed
@@ -917,22 +922,22 @@ class NovaPoshtaApi2
     {
         // Check required fields
         if (!$counterparty['FirstName']) {
-            throw new \Exception('FirstName is required filed for recipient');
+            throw new RuntimeException('FirstName is required filed for recipient');
         }
-        // MiddleName realy is not required field, but manual says otherwise
+        // MiddleName really is not required field, but manual says otherwise
         // if ( ! $counterparty['MiddleName'])
-        // throw new \Exception('MiddleName is required filed for sender and recipient');
+        // throw new \Exception('MiddleName is required field for sender and recipient');
         if (!$counterparty['LastName']) {
-            throw new \Exception('LastName is required filed for recipient');
+            throw new RuntimeException('LastName is required filed for recipient');
         }
         if (!$counterparty['Phone']) {
-            throw new \Exception('Phone is required filed for recipient');
+            throw new RuntimeException('Phone is required filed for recipient');
         }
-        if (!($counterparty['City'] or $counterparty['CityRef'])) {
-            throw new \Exception('City is required filed for recipient');
+        if (!($counterparty['City'] || $counterparty['CityRef'])) {
+            throw new RuntimeException('City is required filed for recipient');
         }
-        if (!($counterparty['Region'] or $counterparty['CityRef'])) {
-            throw new \Exception('Region is required filed for recipient');
+        if (!($counterparty['Region'] || $counterparty['CityRef'])) {
+            throw new RuntimeException('Region is required filed for recipient');
         }
 
         // Set defaults
@@ -949,13 +954,13 @@ class NovaPoshtaApi2
     protected function checkInternetDocumentParams(array &$params)
     {
         if (!$params['Description']) {
-            throw new \Exception('Description is required filed for new Internet document');
+            throw new RuntimeException('Description is required filed for new Internet document');
         }
         if (!$params['Weight']) {
-            throw new \Exception('Weight is required filed for new Internet document');
+            throw new RuntimeException('Weight is required filed for new Internet document');
         }
         if (!$params['Cost']) {
-            throw new \Exception('Cost is required filed for new Internet document');
+            throw new RuntimeException('Cost is required filed for new Internet document');
         }
         empty($params['DateTime']) and $params['DateTime'] = date('d.m.Y');
         empty($params['ServiceType']) and $params['ServiceType'] = 'WarehouseWarehouse';
@@ -963,7 +968,7 @@ class NovaPoshtaApi2
         empty($params['PayerType']) and $params['PayerType'] = 'Recipient';
         empty($params['SeatsAmount']) and $params['SeatsAmount'] = '1';
         empty($params['CargoType']) and $params['CargoType'] = 'Cargo';
-        if($params['CargoType'] != 'Documents') {
+        if ($params['CargoType'] !== 'Documents') {
             empty($params['VolumeGeneral']) and $params['VolumeGeneral'] = '0.0004';
             empty($params['VolumeWeight']) and $params['VolumeWeight'] = $params['Weight'];
         }
@@ -972,16 +977,16 @@ class NovaPoshtaApi2
     /**
      * Create Internet Document by.
      *
-     * @param array $sender    Sender info.
+     * @param array $sender Sender info.
      *                         Required:
      *                         For existing sender:
      *                         'Description' => String (Full name i.e.), 'City' => String (City name)
      *                         For creating:
      *                         'FirstName' => String, 'MiddleName' => String,
      *                         'LastName' => String, 'Phone' => '000xxxxxxx', 'City' => String (City name), 'Region' => String (Region name),
-     *                         'Warehouse' => String (Description from getWarehouses))
+     *                         'Warehouse' => String (Description from getWarehouses)
      * @param array $recipient Recipient info, same like $sender param
-     * @param array $params    Additional params of Internet Document
+     * @param array $params Additional params of Internet Document
      *                         Required:
      *                         'Description' => String, 'Weight' => Float, 'Cost' => Float
      *                         Recommended:
@@ -1001,20 +1006,20 @@ class NovaPoshtaApi2
             $sender['CitySender'] = $senderCity['data'][0]['Ref'];
         }
         $sender['CityRef'] = $sender['CitySender'];
-        if (empty($sender['SenderAddress']) and $sender['CitySender'] and $sender['Warehouse']) {
+        if (empty($sender['SenderAddress']) && $sender['CitySender'] && $sender['Warehouse']) {
             $senderWarehouse = $this->getWarehouse($sender['CitySender'], $sender['Warehouse']);
             $sender['SenderAddress'] = $senderWarehouse['data'][0]['Ref'];
         }
         if (empty($sender['Sender'])) {
             $sender['CounterpartyProperty'] = 'Sender';
-            $fullName = trim($sender['LastName'].' '.$sender['FirstName'].' '.$sender['MiddleName']);
+            $fullName = trim($sender['LastName'] . ' ' . $sender['FirstName'] . ' ' . $sender['MiddleName']);
             // Set full name to Description if is not set
             if (empty($sender['Description'])) {
                 $sender['Description'] = $fullName;
             }
             // Check for existing sender
             $senderCounterpartyExisting = $this->getCounterparties('Sender', 1, $fullName, $sender['CityRef']);
-            // Copy user to the selected city if user doesn't exists there
+            // Copy user to the selected city if user doesn't exist there
             if (isset($senderCounterpartyExisting['data'][0]['Ref'])) {
                 // Counterparty exists
                 $sender['Sender'] = $senderCounterpartyExisting['data'][0]['Ref'];
@@ -1050,17 +1055,17 @@ class NovaPoshtaApi2
     /**
      * Get only link on internet document for printing.
      *
-     * @param string       $method       Called method of NovaPoshta API
-     * @param array        $documentRefs Array of Documents IDs
-     * @param string       $type         (html_link|pdf_link)
+     * @param string $method Called method of NovaPoshta API
+     * @param array $documentRefs Array of Documents IDs
+     * @param string $type (html_link|pdf_link)
      *
      * @return mixed
      */
     protected function printGetLink($method, $documentRefs, $type)
     {
-        $data = 'https://my.novaposhta.ua/orders/'.$method.'/orders[]/'.implode(',', $documentRefs)
-                .'/type/'.str_replace('_link', '', $type)
-                .'/apiKey/'.$this->key;
+        $data = 'https://my.novaposhta.ua/orders/' . $method . '/orders[]/' . implode(',', $documentRefs)
+            . '/type/' . str_replace('_link', '', $type)
+            . '/apiKey/' . $this->key;
         // Return data in same format like NovaPoshta API
         return $this->prepare(
             array(
@@ -1069,7 +1074,7 @@ class NovaPoshtaApi2
                 'errors' => array(),
                 'warnings' => array(),
                 'info' => array(),
-        )
+            )
         );
     }
 
@@ -1077,18 +1082,18 @@ class NovaPoshtaApi2
      * printDocument method of InternetDocument model.
      *
      * @param array|string $documentRefs Array of Documents IDs
-     * @param string       $type         (pdf|html|html_link|pdf_link)
+     * @param string $type (pdf|html|html_link|pdf_link)
      *
      * @return mixed
      */
     public function printDocument($documentRefs, $type = 'html')
     {
-        $documentRefs = (array) $documentRefs;
-        // If needs link
-        if ('html_link' == $type or 'pdf_link' == $type) {
+        $documentRefs = (array)$documentRefs;
+        // If link is needed
+        if ('html_link' === $type || 'pdf_link' === $type) {
             return $this->printGetLink('printDocument', $documentRefs, $type);
         }
-        // If needs data
+        // If data is needed
         return $this->request('InternetDocument', 'printDocument', array('DocumentRefs' => $documentRefs, 'Type' => $type));
     }
 
@@ -1096,20 +1101,20 @@ class NovaPoshtaApi2
      * printMarkings method of InternetDocument model.
      *
      * @param array|string $documentRefs Array of Documents IDs
-     * @param string       $type         (pdf|new_pdf|new_html|old_html|html_link|pdf_link)
+     * @param string $type (pdf|new_pdf|new_html|old_html|html_link|pdf_link)
      *
      * @return mixed
      */
     public function printMarkings($documentRefs, $type = 'new_html', $size = '85x85')
     {
-        $documentRefs = (array) $documentRefs;
+        $documentRefs = (array)$documentRefs;
         $documentSize = $size === '85x85' ? '85x85' : '100x100';
-        $method = 'printMarking'.$documentSize;
-        // If needs link
-        if ('html_link' == $type or 'pdf_link' == $type) {
+        $method = 'printMarking' . $documentSize;
+        // If link is needed
+        if ('html_link' === $type || 'pdf_link' === $type) {
             return $this->printGetLink($method, $documentRefs, $type);
         }
-        // If needs data
+        // If data is needed
         return $this->request('InternetDocument', $method, array('DocumentRefs' => $documentRefs, 'Type' => $type));
     }
 }

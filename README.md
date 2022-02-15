@@ -212,60 +212,62 @@ $result = $np
 # Реализованные методы для работы с моделями
 
 ## Модель InternetDocument
-* save
-* update
-* delete
-* getDocumentPrice
-* getDocumentDeliveryDate
-* getDocumentList
-* getDocument
-* printDocument
-* printMarkings
-* documentsTracking
-* newInternetDocument
-* generateReport
+* `save`
+* `update`
+* `delete`
+* `getDocumentPrice`
+* `getDocumentDeliveryDate`
+* `getDocumentList`
+* `getDocument`
+* `printDocument`
+* `printMarkings`
+* `documentsTracking`
+* `newInternetDocument`
+* `generateReport`
 
 ## Модель Counterparty
-* save
-* update
-* delete
-* cloneLoyaltyCounterpartySender
-* getCounterparties
-* getCounterpartyAddresses
-* getCounterpartyContactPersons
-* getCounterpartyByEDRPOU
-* getCounterpartyOptions
+* `save`
+* `update`
+* `delete`
+* `cloneLoyaltyCounterpartySender`
+* `getCounterparties`
+* `getCounterpartyAddresses`
+* `getCounterpartyContactPersons`
+* `getCounterpartyByEDRPOU`
+* `getCounterpartyOptions`
 
 ## Модель ContactPerson
-* save
-* update
-* delete
+* `save`
+* `update`
+* `delete`
 
 ## Модель Address
-* save
-* update
-* delete
-* getCities
-* getStreet
-* getWarehouses
-* getAreas
-* findNearestWarehouse
+* `save`
+* `update`
+* `delete`
+* `getCities` (+ `getCity`)
+* `getStreet`
+* `getWarehouses` (+ `getWarehouse`)
+* `getAreas` (+ `getArea`)
+* `findNearestWarehouse`
+* `getWarehouseTypes`
 
 ## Модель Common
-* getTypesOfCounterparties
-* getBackwardDeliveryCargoTypes
-* getCargoDescriptionList
-* getCargoTypes
-* getDocumentStatuses
-* getOwnershipFormsList
-* getPalletsList
-* getPaymentForms
-* getTimeIntervals
-* getServiceTypes
-* getTiresWheelsList
-* getTraysList
-* getTypesOfPayers
-* getTypesOfPayersForRedelivery
+* `getTypesOfCounterparties`
+* `getBackwardDeliveryCargoTypes`
+* `getCargoDescriptionList`
+* `getCargoTypes`
+* `getDocumentStatuses`
+* `getOwnershipFormsList`
+* `getPalletsList`
+* `getPaymentForms`
+* `getTimeIntervals`
+* `getServiceTypes`
+* `getTiresWheelsList`
+* `getTraysList`
+* `getTypesOfPayers`
+* `getTypesOfPayersForRedelivery`
+* `getMessageCodeText`
 
 # Тесты
 Актуальные тесты и примеры использования класса находятся в файле `tests/NovaPoshtaApi2Test.php`

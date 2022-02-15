@@ -6,3 +6,4 @@
 tests/cover
 vendor/
 web/
+composer.lock
