@@ -20,26 +20,9 @@ class Config
     /** @var bool Throw exceptions when there is an error in the response */
     protected $throwErrors;
 
-    /** @var bool[] list of available languages */
-    protected $availableLanguages = array(
-        Language::RU => true,
-        Language::UA => true,
-    );
-    /** @var bool[] list of available connection types */
-    protected $availableConnectionTypes = array(
-        Connection::CURL => true,
-        Connection::FILE => true,
-    );
-    /** @var bool[] list of available format of returned data */
-    protected $availableFormats = array(
-        Format::ARR => true,
-        Format::JSON => true,
-        Format::XML => true,
-    );
-
     /**
-     * SDK configuration
-     * @param string $language Language of response (ru | ua)
+     * NovaPoshta configuration
+     * @param string $language Language of response (ru | ua | en)
      * @param string $connectionType Connection type (curl | file_get_contents)
      * @param int $timeout Request timeout (greater than zero)
      * @param string $format Format of returned data (array, json, xml)
@@ -63,16 +46,16 @@ class Config
     }
 
     /**
-     * Setter for request's language (ru | ua)
-     * @param string $language available variants in LisDev\Constants\Language
+     * Setter for request's language (ru | ua | en)
+     * @param string $language available variants in \LisDev\Constants\Language
      * @return $this
      * @throws ConfigException
      */
     public function setLanguage($language)
     {
         $language = (string)$language;
-        if (!array_key_exists($language, $this->availableLanguages)) {
-            throw new ConfigException("Unknown language '$language'. Check LisDev\Constants\Language");
+        if (!array_key_exists($language, Language::getList())) {
+            throw new ConfigException("Unknown language '$language'. Check \LisDev\Constants\Language");
         }
         $this->language = $language;
         return $this;
@@ -89,16 +72,16 @@ class Config
 
     /**
      * Setter for request's connection type (curl | file_get_contents)
-     * @param string $connectionType available variants in LisDev\Constants\Connection
+     * @param string $connectionType available variants in \LisDev\Constants\Connection
      * @return $this
      * @throws ConfigException
      */
     public function setConnectionType($connectionType)
     {
         $connectionType = (string)$connectionType;
-        if (!array_key_exists($connectionType, $this->availableConnectionTypes)) {
+        if (!array_key_exists($connectionType, Connection::getList())) {
             throw new ConfigException("Unknown connection type '$connectionType'" .
-                ". Check LisDev\Constants\Connection");
+                ". Check \LisDev\Constants\Connection");
         }
         $this->connectionType = $connectionType;
         return $this;
@@ -140,15 +123,15 @@ class Config
 
     /**
      * Setter for format of returned data (array, json, xml)
-     * @param string $format available variants in LisDev\Constants\Format
+     * @param string $format available variants in \LisDev\Constants\Format
      * @return $this
      * @throws ConfigException
      */
     public function setFormat($format)
     {
         $format = (string)$format;
-        if (!array_key_exists($format, $this->availableFormats)) {
-            throw new ConfigException("Unknown format '$format'. Check LisDev\Constants\Format");
+        if (!array_key_exists($format, Format::getList())) {
+            throw new ConfigException("Unknown format '$format'. Check \LisDev\Constants\Format");
         }
         $this->format = $format;
 

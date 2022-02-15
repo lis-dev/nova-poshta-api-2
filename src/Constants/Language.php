@@ -17,4 +17,22 @@ class Language
      * @var string
      */
     const UA = 'ua';
+    /**
+     * English
+     * @var string
+     */
+    const EN = 'en';
+
+    /**
+     * list of available languages
+     * @return bool[]
+     */
+    public static function getList()
+    {
+        return array(
+            self::RU => true,
+            self::UA => true,
+            self::EN => true,
+        );
+    }
 }

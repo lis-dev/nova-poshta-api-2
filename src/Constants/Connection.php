@@ -3,7 +3,7 @@
 namespace LisDev\Constants;
 
 /**
- * Supported request types
+ * Supported connection types
  */
 class Connection
 {
@@ -16,4 +16,16 @@ class Connection
      * @var string
      */
     const FILE = 'file_get_contents';
+
+    /**
+     * list of available connection types
+     * @return bool[]
+     */
+    public static function getList()
+    {
+        return array(
+            self::CURL => true,
+            self::FILE => true,
+        );
+    }
 }

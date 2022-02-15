@@ -48,4 +48,3 @@ $np2 = new \LisDev\NovaPoshta('3ef3805f5661ec3d99e8e958c46d5a0e', $config);
 
 //var_dump($np2->InternetDocument()->getDocumentList());
 var_dump($np2->Common()->getMessageCodeText());
-

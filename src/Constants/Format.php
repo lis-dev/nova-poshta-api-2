@@ -21,4 +21,17 @@ class Format
      * @var string
      */
     const XML = 'xml';
+
+    /**
+     * list of available format of returned data
+     * @return bool[]
+     */
+    public static function getList()
+    {
+        return array(
+            self::ARR => true,
+            self::JSON => true,
+            self::XML => true,
+        );
+    }
 }

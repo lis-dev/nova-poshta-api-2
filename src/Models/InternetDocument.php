@@ -296,7 +296,7 @@ class InternetDocument extends AbstractWritableModel
      */
     protected function checkInternetDocumentRecipient(array &$counterparty)
     {
-        $requiredFieldMsg = ' is required filed for recipient';
+        $requiredFieldMsg = ' is required field for recipient';
         // Check required fields
         if (!$counterparty[Api::FIRSTNAME]) {
             throw new ParamsException(Api::FIRSTNAME . $requiredFieldMsg);
@@ -331,14 +331,15 @@ class InternetDocument extends AbstractWritableModel
      */
     protected function checkInternetDocumentParams(array &$params)
     {
+        $requiredFieldMsg = ' is required field for a new Internet document';
         if (!$params[Api::DESCRIPTION]) {
-            throw new ParamsException('Description is required filed for new Internet document');
+            throw new ParamsException(Api::DESCRIPTION . $requiredFieldMsg);
         }
         if (!$params[Api::WEIGHT]) {
-            throw new ParamsException('Weight is required filed for new Internet document');
+            throw new ParamsException(Api::WEIGHT . $requiredFieldMsg);
         }
         if (!$params[API::COST]) {
-            throw new ParamsException('Cost is required filed for new Internet document');
+            throw new ParamsException(Api::COST . $requiredFieldMsg);
         }
         empty($params[API::DATETIME]) and $params[API::DATETIME] = date(Api::DEFAULT_DATE_FORMAT);
         empty($params[Api::SERVICE_TYPE]) and $params[Api::SERVICE_TYPE] = Api::DEFAULT_SERVICE_TYPE;
