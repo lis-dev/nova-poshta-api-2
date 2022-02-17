@@ -6,7 +6,7 @@ namespace LisDev\Constants;
 /**
  * Supported response formats
  */
-class Format
+class Format implements ConstantsListInterface
 {
     /**
      * (default) array

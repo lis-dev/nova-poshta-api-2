@@ -61,7 +61,7 @@ https://github.com/lis-dev/nova-poshta-api-2/archive/master.zip
 
 Для входящих данных используются PHP массивы, ответ сервера может быть получен в следующих форматах:
 
-* `PHP array`
+* `PHP array` по умолчанию
 * `JSON`
 * `XML`
 
@@ -367,4 +367,16 @@ $result = $np
 ```
 composer install
 NOVA_POSHTA_API2_KEY=Ваш_ключ_API_2.0 vendor/phpunit/phpunit/phpunit tests
+```
+
+В случае, если вы используете более актуальную версию `PHP`, нежели `v5.*` - тесты могут не запустится по причине
+несовместимости `PHPUnit v4.*` с более современными версиями `PHP`. В таком случае, вы можете запустить тесты при
+помощи `Docker Compose` (не забудьте установить зависимости `composer` заново, через контейнер). Сделать это можно
+следующим образом:
+
+```shell
+sudo rm -Rf vendor/ && sudo rm -Rf composer.lock
+docker compose up -d
+docker exec -it php5.3 composer install
+docker exec -it php5.3 sh -c "NOVA_POSHTA_API2_KEY=Ваш_ключ_API_2.0 vendor/phpunit/phpunit/phpunit tests"
 ```

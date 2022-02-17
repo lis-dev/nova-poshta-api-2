@@ -5,7 +5,7 @@ namespace LisDev\Constants;
 /**
  * Supported response languages
  */
-class Language
+class Language implements ConstantsListInterface
 {
     /**
      * (default) Russian

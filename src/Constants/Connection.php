@@ -5,7 +5,7 @@ namespace LisDev\Constants;
 /**
  * Supported connection types
  */
-class Connection
+class Connection implements ConstantsListInterface
 {
     /**
      * (default) cURL

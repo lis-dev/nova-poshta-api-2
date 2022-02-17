@@ -106,7 +106,7 @@ class Config
     {
         $timeout = (int)$timeout;
         if ($timeout < 0) {
-            throw new ConfigException('Timeout must be greater than zero');
+            throw new ConfigException('Timeout must be less than or equal to 0');
         }
         $this->timeout = $timeout;
         return $this;

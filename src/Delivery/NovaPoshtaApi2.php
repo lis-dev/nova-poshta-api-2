@@ -688,7 +688,6 @@ class NovaPoshtaApi2
                 ->params(null)
                 ->execute();
         }
-        throw new RuntimeException("Unknown method '$method' for model 'Common'");
     }
 
     /**

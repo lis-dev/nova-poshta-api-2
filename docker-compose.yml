@@ -1,0 +1,10 @@
+version: "3.8"
+services:
+  php5.3:
+    build: ./containers/php5.3
+    container_name: php5.3
+    restart: always
+    volumes:
+      - .:/var/www/html
+    stdin_open: true
+    tty: true

@@ -34,7 +34,8 @@
   },
   "autoload": {
     "psr-4": {
-      "LisDev\\": "src/"
+      "LisDev\\": "src/",
+      "LisDev\\Tests\\": "tests"
     }
   }
 }
