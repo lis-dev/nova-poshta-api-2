@@ -11,28 +11,12 @@ use LisDev\Factories\RequestFactory;
 class RequestFactoryTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * Instance of tested class.
-     *
-     * @var RequestFactory
-     */
-    private $factory;
-
-    /**
-     * Set up before each test.
-     */
-    public function setUp()
-    {
-        // Create new instance
-        $this->factory = new RequestFactory();
-    }
-
-    /**
      * Create cURL request
      * @throws ApplicationException
      */
     public function testCreateCurlRequest()
     {
-        $result = $this->factory->create(
+        $result = RequestFactory::create(
             'token',
             Connection::CURL,
             Language::RU,
@@ -48,7 +32,7 @@ class RequestFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateFileRequest()
     {
-        $result = $this->factory->create(
+        $result = RequestFactory::create(
             'token',
             Connection::FILE,
             Language::RU,
@@ -66,7 +50,7 @@ class RequestFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $type = 'blabla';
         $this->setExpectedException('LisDev\Exceptions\ApplicationException', "Unknown connection type '$type'");
-        $result = $this->factory->create(
+        $result = RequestFactory::create(
             'token',
             $type,
             Language::RU,
