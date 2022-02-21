@@ -29,6 +29,11 @@ class NovaPoshta
         return new Documents($this->apiClient);
     }
 
+    public function counterparties(): Counterparties
+    {
+        return new Counterparties($this->apiClient);
+    }
+
     public function internetDocuments(): InternetDocuments
     {
         return new InternetDocuments($this->apiClient);
