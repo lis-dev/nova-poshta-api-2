@@ -23,6 +23,11 @@ class NovaPoshta
     {
         return new Addresses($this->apiClient);
     }
+    
+    public function internetDocuments(): InternetDocuments
+    {
+        return new InternetDocuments($this->apiClient);
+    }
 
     public function newQuery(): QueryBuilder
     {
