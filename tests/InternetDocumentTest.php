@@ -11,6 +11,8 @@ class InternetDocumentTest extends TestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
+        
         $this->internetDocuments = new InternetDocuments(
             new ApiClient($this->apiKey, timeout: 5)
         );
