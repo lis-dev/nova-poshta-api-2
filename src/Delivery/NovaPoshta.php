@@ -23,4 +23,9 @@ class NovaPoshta
     {
         return new Addresses($this->apiClient);
     }
+
+    public function newQuery(): QueryBuilder
+    {
+        return new QueryBuilder($this->apiClient);
+    }
 }
