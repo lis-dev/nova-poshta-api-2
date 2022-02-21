@@ -2,7 +2,9 @@
 
 namespace LisDev\Delivery\Exception;
 
-class ApiRequestException extends NovaPoshtaException
+use RuntimeException;
+
+class ApiRequestException extends RuntimeException
 {
 
 }

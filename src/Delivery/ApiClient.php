@@ -29,9 +29,6 @@ class ApiClient
         ]);
     }
 
-    /**
-     * @throws ApiRequestException
-     */
     public function request(string $model, string $method, array $params = null): array|string
     {
         try {
@@ -74,9 +71,6 @@ class ApiClient
         return new Request('POST', 'json/', $headers, $body);
     }
 
-    /**
-     * @throws ApiRequestException
-     */
     private function prepareResponse(ResponseInterface $response): array|string
     {
         $body = $this->format === NovaPoshta::FORMAT_XML
@@ -91,9 +85,6 @@ class ApiClient
         return $this->format === NovaPoshta::FORMAT_ARRAY ? $body : (string)$response->getBody();
     }
 
-    /**
-     * @throws ApiRequestException
-     */
     private function assertNoErrors(array $response): void
     {
         if (isset($response['success']) && !$response['success']) {
