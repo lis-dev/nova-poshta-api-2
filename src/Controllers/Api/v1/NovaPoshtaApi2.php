@@ -31,16 +31,6 @@ class NovaPoshtaApi2
     protected $throwErrors = false;
 
     /**
-     * @var string Format of returned data - array, json, xml
-     */
-    protected $format = 'array';
-
-    /**
-     * @var string Language of response
-     */
-    protected $language = 'ru';
-
-    /**
      * @var string Connection type (curl | file_get_contents)
      */
     protected $connectionType = 'curl';
@@ -222,92 +212,6 @@ class NovaPoshtaApi2
         }
         // Returns json or xml document
         return $data;
-    }
-
-    /**
-     * Converts array to xml.
-     *
-     * @param array $array
-     * @param \SimpleXMLElement|bool $xml
-     */
-    private function array2xml(array $array, $xml = false)
-    {
-        (false === $xml) and $xml = new \SimpleXMLElement('<root/>');
-        foreach ($array as $key => $value) {
-            if (is_numeric($key)) {
-                $key = 'item';
-            }
-            if (is_array($value)) {
-                $this->array2xml($value, $xml->addChild($key));
-            } else {
-                $xml->addChild($key, $value);
-            }
-        }
-        return $xml->asXML();
-    }
-
-    /**
-     * Make request to NovaPoshta API.
-     *
-     * @param string $model  Model name
-     * @param string $method Method name
-     * @param array  $params Required params
-     */
-    private function request($model, $method, $params = null)
-    {
-        // Get required URL
-        $url = 'xml' == $this->format
-            ? self::API_URI.'/xml/'
-            : self::API_URI.'/json/';
-
-        $data = array(
-            'apiKey' => $this->key,
-            'modelName' => $model,
-            'calledMethod' => $method,
-            'language' => $this->language,
-            'methodProperties' => $params,
-        );
-        $result = array();
-        // Convert data to neccessary format
-        $post = 'xml' == $this->format
-            ? $this->array2xml($data)
-            : json_encode($data);
-
-        if ('curl' == $this->getConnectionType()) {
-            $ch = curl_init($url);
-            if (is_resource($ch)) {
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: '.('xml' == $this->format ? 'text/xml' : 'application/json')));
-                curl_setopt($ch, CURLOPT_HEADER, 0);
-                curl_setopt($ch, CURLOPT_POST, 1);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-
-                if ($this->timeout > 0) {
-                    curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
-                    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->timeout);
-                }
-
-                $result = curl_exec($ch);
-                curl_close($ch);
-            }
-        } else {
-            $httpOptions = array(
-                'method' => 'POST',
-                'header' => "Content-type: application/x-www-form-urlencoded;\r\n",
-                'content' => $post,
-            );
-
-            if ($this->timeout > 0) {
-                $httpOptions['timeout'] = $this->timeout;
-            }
-
-            $result = file_get_contents($url, false, stream_context_create(array(
-                'http' => $httpOptions,
-            )));
-        }
-
-        return $this->prepare($result);
     }
 
     /**
@@ -684,52 +588,6 @@ class NovaPoshtaApi2
                 ->params(null)
                 ->execute();
         }
-    }
-
-    /**
-     * Delete method of current model.
-     *
-     * @param array $params
-     *
-     * @return mixed
-     */
-    public function delete($params)
-    {
-        return $this->request($this->model, 'delete', $params);
-    }
-
-    /**
-     * Update method of current model
-     * Required params:
-     * For ContactPerson model: Ref, CounterpartyRef, FirstName (ukr), MiddleName, LastName, Phone (format 0xxxxxxxxx)
-     * For Counterparty model: Ref, CounterpartyProperty (Recipient|Sender), CityRef, CounterpartyType (Organization, PrivatePerson),
-     * FirstName (or name of organization), MiddleName, LastName, Phone (0xxxxxxxxx), OwnershipForm (if Organization).
-     *
-     * @param array $params
-     *
-     * @return mixed
-     */
-    public function update($params)
-    {
-        return $this->request($this->model, 'update', $params);
-    }
-
-    /**
-     * Save method of current model
-     * Required params:
-     * For ContactPerson model (only for Organization API key, for PrivatePerson error will be returned):
-     *	 CounterpartyRef, FirstName (ukr), MiddleName, LastName, Phone (format 0xxxxxxxxx)
-     * For Counterparty model:
-     *	 CounterpartyProperty (Recipient|Sender), CityRef, CounterpartyType (Organization, PrivatePerson),
-     *	 FirstName (or name of organization), MiddleName, LastName, Phone (0xxxxxxxxx), OwnershipForm (if Organization).
-     *
-     * @param array $params
-     *
-     * @return mixed
-     */
-    public function save($params)
-    {
-        return $this->request($this->model, 'save', $params);
     }
 
     /**
