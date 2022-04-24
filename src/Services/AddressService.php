@@ -12,6 +12,7 @@ class AddressService
         $this->preparationDataService = new PreparationDataService();
         $this->novaPoshtaApiClient = new NovaPoshtaApiClient();
     }
+
     /**
      * Get cities of company NovaPoshta.
      *

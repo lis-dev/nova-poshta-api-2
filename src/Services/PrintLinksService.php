@@ -6,6 +6,7 @@ use LisDev\Common\PrintMarkingType;
 
 class PrintLinksService
 {
+    protected $key;
     private PreparationDataService $preparationDataService;
     private NovaPoshtaApiClient $novaPoshtaApiClient;
 
