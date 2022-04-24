@@ -2,7 +2,7 @@
 
 namespace LisDev\Models;
 
-class CounterParty
+class CounterParty extends Model
 {
 
 }

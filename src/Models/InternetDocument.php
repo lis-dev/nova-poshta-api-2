@@ -2,7 +2,7 @@
 
 namespace LisDev\Models;
 
-class InternetDocument
+class InternetDocument extends Model
 {
 
 }

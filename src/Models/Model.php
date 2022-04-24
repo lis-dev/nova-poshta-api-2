@@ -2,7 +2,9 @@
 
 namespace LisDev\Models;
 
-class Model
+use LisDev\Interfaces\ModelInterface;
+
+class Model implements ModelInterface
 {
     protected Model $model;
 
@@ -19,7 +21,7 @@ class Model
      *
      * @return mixed
      */
-    public function save($params)
+    public function save(array $params): Model
     {
         return $this->request($this->model, 'save', $params);
     }
@@ -35,7 +37,7 @@ class Model
      *
      * @return mixed
      */
-    public function update($params)
+    public function update(array $params): Model
     {
         return $this->request($this->model, 'update', $params);
     }
@@ -47,7 +49,7 @@ class Model
      *
      * @return mixed
      */
-    public function delete($params)
+    public function delete(array $params): string
     {
         return $this->request($this->model, 'delete', $params);
     }

@@ -2,7 +2,7 @@
 
 namespace LisDev\Models;
 
-class Common
+class Common extends Model
 {
 
 }

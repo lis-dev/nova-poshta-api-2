@@ -2,7 +2,7 @@
 
 namespace LisDev\Models;
 
-class Address
+class Address extends Model
 {
 
 }

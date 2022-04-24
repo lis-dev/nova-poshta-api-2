@@ -102,29 +102,6 @@ class NovaPoshtaApi2
     }
 
     /**
-     * Setter for $connectionType property.
-     *
-     * @param string $connectionType Connection type (curl | file_get_contents)
-     *
-     * @return $this
-     */
-    public function setConnectionType($connectionType)
-    {
-        $this->connectionType = $connectionType;
-        return $this;
-    }
-
-    /**
-     * Getter for $connectionType property.
-     *
-     * @return string
-     */
-    public function getConnectionType()
-    {
-        return $this->connectionType;
-    }
-
-    /**
      * @param int $timeout
      *
      * @return $this

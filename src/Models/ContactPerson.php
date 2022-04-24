@@ -2,7 +2,7 @@
 
 namespace LisDev\Models;
 
-class ContactPerson
+class ContactPerson extends Model
 {
 
 }
