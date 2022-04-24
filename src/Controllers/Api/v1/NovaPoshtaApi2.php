@@ -30,34 +30,11 @@ class NovaPoshtaApi2
      */
     protected $throwErrors = false;
 
-    /**
-     * @var string Connection type (curl | file_get_contents)
-     */
-    protected $connectionType = 'curl';
-
-    /** @var int Connection timeout (in seconds) */
-    protected $timeout = 0;
 
     /**
      * @var string Areas (loaded from file, because there is no so function in NovaPoshta API 2.0)
      */
     protected $areas = '';
-
-    /**
-     * @var string Set current model for methods save(), update(), delete()
-     */
-    protected $model = 'Common';
-
-    /**
-     * @var string Set method of current model
-     */
-    protected $method = '';
-
-    /**
-     * @var array Set params of current method of current model
-     */
-    protected $params = array();
-
     /**
      * Default constructor.
      *
@@ -101,95 +78,6 @@ class NovaPoshtaApi2
         return $this->key;
     }
 
-    /**
-     * @param int $timeout
-     *
-     * @return $this
-     */
-    public function setTimeout($timeout)
-    {
-        $this->timeout = (int)$timeout;
-
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getTimeout()
-    {
-        return $this->timeout;
-    }
-
-    /**
-     * Setter for language property.
-     *
-     * @param string $language
-     *
-     * @return NovaPoshtaApi2
-     */
-    public function setLanguage($language)
-    {
-        $this->language = $language;
-        return $this;
-    }
-
-    /**
-     * Getter for language property.
-     *
-     * @return string
-     */
-    public function getLanguage()
-    {
-        return $this->language;
-    }
-
-    /**
-     * Setter for format property.
-     *
-     * @param string $format Format of returned data by methods (json, xml, array)
-     *
-     * @return NovaPoshtaApi2
-     */
-    public function setFormat($format)
-    {
-        $this->format = $format;
-        return $this;
-    }
-
-    /**
-     * Getter for format property.
-     *
-     * @return string
-     */
-    public function getFormat()
-    {
-        return $this->format;
-    }
-
-    /**
-     * Prepare data before return it.
-     *
-     * @param string|array $data
-     *
-     * @return mixed
-     */
-    private function prepare($data)
-    {
-        // Returns array
-        if ('array' == $this->format) {
-            $result = is_array($data)
-                ? $data
-                : json_decode($data, true);
-            // If error exists, throw Exception
-            if ($this->throwErrors and array_key_exists('errors', $result) and $result['errors']) {
-                throw new \Exception(is_array($result['errors']) ? implode("\n", $result['errors']) : $result['errors']);
-            }
-            return $result;
-        }
-        // Returns json or xml document
-        return $data;
-    }
 
     /**
      * Set current model and empties method and params properties.
@@ -322,45 +210,6 @@ class NovaPoshtaApi2
         return $this->request('Address', 'findNearestWarehouse', array(
             'SearchStringArray' => $searchStringArray,
         ));
-    }
-
-    /**
-     * Get one warehouse by city name and warehouse's description.
-     *
-     * @param string $cityRef     ID of city
-     * @param string $description Description like in getted by getWarehouses()
-     *
-     * @return mixed
-     */
-    public function getWarehouse($cityRef, $description = '')
-    {
-        $warehouses = $this->getWarehouses($cityRef);
-        $error = array();
-        $data = array();
-        if (is_array($warehouses['data'])) {
-            $data = $warehouses['data'][0];
-            if (count($warehouses['data']) > 1 && $description) {
-                foreach ($warehouses['data'] as $warehouse) {
-                    if (false !== mb_stripos($warehouse['Description'], $description)
-                    or false !== mb_stripos($warehouse['DescriptionRu'], $description)) {
-                        $data = $warehouse;
-                        break;
-                    }
-                }
-            }
-        }
-        // Error
-        (!$data) and $error = 'Warehouse was not found';
-        // Return data in same format like NovaPoshta API
-        return $this->prepare(
-            array(
-                'success' => empty($error),
-                'data' => array($data),
-                'errors' => (array) $error,
-                'warnings' => array(),
-                'info' => array(),
-        )
-        );
     }
 
     /**

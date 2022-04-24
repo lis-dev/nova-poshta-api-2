@@ -2,9 +2,10 @@
 
 namespace LisDev\Services;
 
+use LisDev\Controllers\NovaPoshtaApi2;
 use LisDev\Models\Model;
 
-class RequestService
+class NovaPoshtaApi
 {
     const API_URI = 'https://api.novaposhta.ua/v2.0';
 
@@ -17,35 +18,31 @@ class RequestService
      */
     protected string $key;
 
-    /**
-     * @var string Format of returned data - array, json, xml
-     */
-    protected string $format = 'array';
+    /** @var int Connection timeout (in seconds) */
+    protected int $timeout = 0;
 
-    /**
-     * @var string Language of response
-     */
-    protected string $language = 'ru';
     protected OutputService $outputService;
-
-    /**
-     * Make request to NovaPoshta API.
-     *
-     * @param Model $model Model name
-     * @param string $method Method name
-     * @param array|null $params Required params
-     * @return mixed
-     */
+    private ConnectionService $connectionService;
+    private PreparationDataService $preparationDataService;
+    private LanguageService $languageService;
+    private FormatService $formatService;
 
     public function __construct()
     {
         $this->outputService = new OutputService();
+        $this->connectionService = new ConnectionService();
+        $this->preparationDataService = new PreparationDataService();
+        $this->languageService = new LanguageService();
+        $this->formatService = new FormatService();
     }
 
+    /**
+     * @throws \Exception
+     */
     private function request(Model $model, string $method, array $params = null)
     {
         // Get required URL
-        $url = 'xml' == $this->format
+        $url = 'xml' == $this->formatService->getFormat()
             ? self::API_URI.'/xml/'
             : self::API_URI.'/json/';
 
@@ -53,16 +50,16 @@ class RequestService
             'apiKey' => $this->key,
             'modelName' => $model,
             'calledMethod' => $method,
-            'language' => $this->language,
+            'language' => $this->languageService->getLanguage(),
             'methodProperties' => $params,
         );
         $result = array();
         // Convert data to neccessary format
-        $post = 'xml' == $this->format
+        $post = 'xml' == $this->formatService->getFormat()
             ? $this->outputService->array2xml($data)
             : json_encode($data);
 
-        if ('curl' == $this->getConnectionType()) {
+        if ('curl' == $this->connectionService->getConnectionType()) {
             $ch = curl_init($url);
             if (is_resource($ch)) {
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -96,6 +93,26 @@ class RequestService
             )));
         }
 
-        return $this->prepare($result);
+        return $this->preparationDataService->prepare($result);
+    }
+
+    /**
+     * @param int $timeout
+     *
+     * @return $this
+     */
+    public function setTimeout(int $timeout): NovaPoshtaApi
+    {
+        $this->timeout = (int)$timeout;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTimeout(): int
+    {
+        return $this->timeout;
     }
 }
