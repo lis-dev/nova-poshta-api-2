@@ -580,19 +580,6 @@ class NovaPoshtaApi2
     }
 
     /**
-     * Generetes report by Document refs.
-     *
-     * @param array $params Params like getDocumentList with requiered keys
-     *                      'Type' => [xls, csv], 'DocumentRefs' => []
-     *
-     * @return mixed
-     */
-    public function generateReport($params)
-    {
-        return $this->request('InternetDocument', 'generateReport', $params);
-    }
-
-    /**
      * Check required fields for new InternetDocument and set defaults.
      *
      * @param array &$counterparty Recipient info array
@@ -729,71 +716,5 @@ class NovaPoshtaApi2
         $paramsInternetDocument = array_merge($sender, $recipient, $params);
         // Creating new Internet Document
         return $this->model('InternetDocument')->save($paramsInternetDocument);
-    }
-
-    /**
-     * Get only link on internet document for printing.
-     *
-     * @param string       $method       Called method of NovaPoshta API
-     * @param array        $documentRefs Array of Documents IDs
-     * @param string       $type         (html_link|pdf_link)
-     *
-     * @return mixed
-     */
-    protected function printGetLink($method, $documentRefs, $type)
-    {
-        $data = 'https://my.novaposhta.ua/orders/'.$method.'/orders[]/'.implode(',', $documentRefs)
-                .'/type/'.str_replace('_link', '', $type)
-                .'/apiKey/'.$this->key;
-        // Return data in same format like NovaPoshta API
-        return $this->prepare(
-            array(
-                'success' => true,
-                'data' => array($data),
-                'errors' => array(),
-                'warnings' => array(),
-                'info' => array(),
-        )
-        );
-    }
-
-    /**
-     * printDocument method of InternetDocument model.
-     *
-     * @param array|string $documentRefs Array of Documents IDs
-     * @param string       $type         (pdf|html|html_link|pdf_link)
-     *
-     * @return mixed
-     */
-    public function printDocument($documentRefs, $type = 'html')
-    {
-        $documentRefs = (array) $documentRefs;
-        // If needs link
-        if ('html_link' == $type or 'pdf_link' == $type) {
-            return $this->printGetLink('printDocument', $documentRefs, $type);
-        }
-        // If needs data
-        return $this->request('InternetDocument', 'printDocument', array('DocumentRefs' => $documentRefs, 'Type' => $type));
-    }
-
-    /**
-     * printMarkings method of InternetDocument model.
-     *
-     * @param array|string $documentRefs Array of Documents IDs
-     * @param string       $type         (pdf|new_pdf|new_html|old_html|html_link|pdf_link)
-     *
-     * @return mixed
-     */
-    public function printMarkings($documentRefs, $type = 'new_html', $size = '85x85')
-    {
-        $documentRefs = (array) $documentRefs;
-        $documentSize = $size === '85x85' ? '85x85' : '100x100';
-        $method = 'printMarking'.$documentSize;
-        // If needs link
-        if ('html_link' == $type or 'pdf_link' == $type) {
-            return $this->printGetLink($method, $documentRefs, $type);
-        }
-        // If needs data
-        return $this->request('InternetDocument', $method, array('DocumentRefs' => $documentRefs, 'Type' => $type));
     }
 }
