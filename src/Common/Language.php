@@ -2,7 +2,7 @@
 
 namespace LisDev\Common;
 
-class LanguageService
+class Language
 {
     /**
      * @var string Language of response
@@ -14,9 +14,9 @@ class LanguageService
      *
      * @param string $language
      *
-     * @return LanguageService
+     * @return Language
      */
-    public function setLanguage(string $language): LanguageService
+    public function setLanguage(string $language): Language
     {
         $this->language = $language;
         return $this;

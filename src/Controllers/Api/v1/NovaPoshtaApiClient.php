@@ -2,8 +2,8 @@
 
 namespace LisDev\Services;
 
-use LisDev\Common\FormatService;
-use LisDev\Common\LanguageService;
+use LisDev\Common\Format;
+use LisDev\Common\Language;
 use LisDev\Interfaces\NovaPoshtaApiClientInterface;
 use LisDev\Models\Model;
 
@@ -26,16 +26,16 @@ class NovaPoshtaApiClient implements NovaPoshtaApiClientInterface
     protected OutputService $outputService;
     private ConnectionService $connectionService;
     private PreparationDataService $preparationDataService;
-    private LanguageService $languageService;
-    private FormatService $formatService;
+    private Language $languageService;
+    private Format $formatService;
 
     public function __construct()
     {
         $this->outputService = new OutputService();
         $this->connectionService = new ConnectionService();
         $this->preparationDataService = new PreparationDataService();
-        $this->languageService = new LanguageService();
-        $this->formatService = new FormatService();
+        $this->languageService = new Language();
+        $this->formatService = new Format();
     }
 
     /**

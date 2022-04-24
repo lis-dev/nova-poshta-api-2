@@ -4,7 +4,7 @@ namespace LisDev\Common;
 
 use LisDev\Controllers\NovaPoshtaApi2;
 
-class FormatService
+class Format
 {
     public string $format;
     /**
@@ -14,7 +14,7 @@ class FormatService
      *
      * @return NovaPoshtaApi2
      */
-    public function setFormat($format): FormatService
+    public function setFormat($format): Format
     {
         $this->format = $format;
         return $this;
