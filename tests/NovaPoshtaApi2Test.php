@@ -2,7 +2,7 @@
 
 namespace LisDev\Tests;
 
-use LisDev\Delivery\NovaPoshtaApi2;
+use LisDev\Controllers\NovaPoshtaApi2;
 
 /**
  * phpUnit test class.
