@@ -140,20 +140,6 @@ class NovaPoshtaApi2
     }
 
     /**
-     * Get tracking information by track number.
-     *
-     * @param string $track Track number
-     *
-     * @return mixed
-     */
-    public function documentsTracking($track)
-    {
-        $params = array('Documents' => array(array('DocumentNumber' => $track)));
-
-        return $this->request('TrackingDocument', 'getStatusDocuments', $params);
-    }
-
-    /**
      * Get cities of company NovaPoshta.
      *
      * @param int    $page         Num of page

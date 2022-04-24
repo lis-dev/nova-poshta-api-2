@@ -6,5 +6,5 @@ use LisDev\Models\Model;
 
 interface NovaPoshtaApiClientInterface
 {
-    public function request(Model $model, string $method, array $params = null);
+    public function request(string $model, string $method, array $params = null);
 }

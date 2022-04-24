@@ -41,7 +41,7 @@ class NovaPoshtaApiClient implements NovaPoshtaApiClientInterface
     /**
      * @throws \Exception
      */
-    public function request(Model $model, string $method, array $params = null)
+    public function request(string $model, string $method, array $params = null)
     {
         // Get required URL
         $url = 'xml' == $this->formatService->getFormat()
