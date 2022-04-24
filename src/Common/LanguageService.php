@@ -1,8 +1,6 @@
 <?php
 
-namespace LisDev\Services;
-
-use LisDev\Controllers\NovaPoshtaApi2;
+namespace LisDev\Common;
 
 class LanguageService
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace LisDev\Services;
+namespace LisDev\Common;
 
 use LisDev\Controllers\NovaPoshtaApi2;
 

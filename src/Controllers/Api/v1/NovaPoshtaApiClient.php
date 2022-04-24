@@ -2,10 +2,12 @@
 
 namespace LisDev\Services;
 
-use LisDev\Controllers\NovaPoshtaApi2;
+use LisDev\Common\FormatService;
+use LisDev\Common\LanguageService;
+use LisDev\Interfaces\NovaPoshtaApiClientInterface;
 use LisDev\Models\Model;
 
-class NovaPoshtaApi
+class NovaPoshtaApiClient implements NovaPoshtaApiClientInterface
 {
     const API_URI = 'https://api.novaposhta.ua/v2.0';
 
@@ -39,7 +41,7 @@ class NovaPoshtaApi
     /**
      * @throws \Exception
      */
-    private function request(Model $model, string $method, array $params = null)
+    public function request(Model $model, string $method, array $params = null)
     {
         // Get required URL
         $url = 'xml' == $this->formatService->getFormat()
@@ -101,7 +103,7 @@ class NovaPoshtaApi
      *
      * @return $this
      */
-    public function setTimeout(int $timeout): NovaPoshtaApi
+    public function setTimeout(int $timeout): NovaPoshtaApiClient
     {
         $this->timeout = (int)$timeout;
 
