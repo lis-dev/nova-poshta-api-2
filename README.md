@@ -58,12 +58,14 @@ require '<path_to_dir>/src/Delivery/NovaPoshtaApi2.php';
 ## Создание экземпляра класса
 Класс по умолчанию находится в namespace `\LisDev\Delivery`. При создании экземпляра класса необходимо
 или использовать Full Qualified Class Name:
+
 ```php
-$np = new \LisDev\Delivery\NovaPoshtaApi2('Ваш_ключ_API_2.0');
+$np = new \LisDev\Controllers\NovaPoshtaApi2('Ваш_ключ_API_2.0');
 ```
 или указать используемый namespace в секции use:
+
 ```php
-use LisDev\Delivery\NovaPoshtaApi2;
+use LisDev\Controllers\NovaPoshtaApi2;
 ...
 $np = new NovaPoshtaApi2('Ваш_ключ_API_2.0');
 ```
