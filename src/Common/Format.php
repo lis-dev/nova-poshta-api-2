@@ -6,7 +6,7 @@ use LisDev\Controllers\NovaPoshtaApi2;
 
 class Format
 {
-    public string $format;
+    protected string $format;
     /**
      * Setter for format property.
      *
@@ -14,7 +14,7 @@ class Format
      *
      * @return NovaPoshtaApi2
      */
-    public function setFormat($format): Format
+    public function setFormat(string $format): Format
     {
         $this->format = $format;
         return $this;

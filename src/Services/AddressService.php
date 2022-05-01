@@ -64,9 +64,9 @@ class AddressService
      *
      * @return mixed
      */
-    public function findNearestWarehouse($searchStringArray)
+    public function findNearestWarehouse(array $searchStringArray)
     {
-        $searchStringArray = (array) $searchStringArray;
+        $searchStringArray = $searchStringArray;
         return $this->novaPoshtaApiClient->request('Address', 'findNearestWarehouse', array(
             'SearchStringArray' => $searchStringArray,
         ));
@@ -107,7 +107,6 @@ class AddressService
         }
         // Try to find current region
         foreach ($areas as $key => $area) {
-            // Is current area found by string or by key
             $found = $findByString
                 ? ((false !== mb_stripos($area['Description'], $findByString))
                     or (false !== mb_stripos($area['DescriptionRu'], $findByString))
