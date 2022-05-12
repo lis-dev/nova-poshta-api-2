@@ -2,6 +2,8 @@
 
 namespace LisDev\Delivery;
 
+use CurlHandle;
+
 /**
  * Nova Poshta API Class.
  *
@@ -275,7 +277,7 @@ class NovaPoshtaApi2
 
         if ('curl' == $this->getConnectionType()) {
             $ch = curl_init($url);
-            if (is_resource($ch)) {
+            if (is_resource($ch) || $ch instanceof CurlHandle) {
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: '.('xml' == $this->format ? 'text/xml' : 'application/json')));
                 curl_setopt($ch, CURLOPT_HEADER, 0);

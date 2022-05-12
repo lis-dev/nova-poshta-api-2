@@ -9,7 +9,7 @@ use LisDev\Delivery\NovaPoshtaApi2;
  *
  * @author lis-dev
  */
-class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
+class NovaPoshtaApi2Test extends \PHPUnit\Framework\TestCase
 {
     /**
      * Key for connection.
@@ -36,7 +36,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
     /**
      * Set up before class.
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         // Disable notices
         error_reporting(E_ALL ^ E_NOTICE);
@@ -46,7 +46,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
     /**
      * Set up before each test.
      */
-    public function setUp()
+    public function setUp(): void
     {
         // Create new instance
         $this->np = new NovaPoshtaApi2(self::$key);
@@ -342,6 +342,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
             'OwnershipForm' => '7f0f351d-2519-11df-be9a-000c291af1b3',
             'EDRPOU' => '12345678',
         ));
+
         // $this->assertTrue($result['success']);
         /*
         return array(
@@ -587,7 +588,6 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
     {
         $result = $this->np->getDocumentList();
         $this->assertTrue($result['success']);
-        return $result['data'][0]['Ref'];
     }
 
     /**
@@ -596,8 +596,10 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
     public function testGenerateReport()
     {
         // Must return xls with headers
-        $result = $this->np->generateReport(array('Type' => 'xls', 'DocumentRefs' => array('1fb8943e-14e4-11e5-ad08-005056801333'), 'DateTime' => date('d.m.Y')));
-        $this->assertEmpty($result);
+        $this->np->setFormat('xls');
+        $result = $this->np->generateReport(array('Type' => 'xls', 'DocumentRefs' => array('1fb8943e-14e4-11e5-ad08-005056801333'), 'DateTime' => date('d.m.Y')));        
+
+        $this->assertStringStartsWith("\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1", $result, "Not a valid xls file");
     }
 
     /**
@@ -606,6 +608,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
     public function testNewInternetDocumentGetSender()
     {
         $existingSender = $this->np->getCounterparties('Sender', 1, '', '');
+
         $this->assertNotEmpty($existingSender['data'][0]);
         return $existingSender['data'][0];
     }
