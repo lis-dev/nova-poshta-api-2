@@ -1,0 +1,84 @@
+Попытка проанализировать класс и выделить из него части в другие подклассы,
+которым здесь не место.
+
+1. Геттеры и сеттеры.
+key
+connectionType
+timeout
+language
+format (Format of returned data by methods (json, xml, array))
+
+2.
+prepare(); //Prepare data before return it
+array2xml();
+request(); //Make request to NovaPoshta API
+model(); //Set current model and empties method and params properties.
+method(); //Set method of current model property and empties params properties.
+params(); //Set params of current method/property property
+execute(); //Execute request to NovaPoshta API
+
+documentsTracking(); //Get tracking information by track number
+
+getCities(); //Get cities of company NovaPoshta
+getWarehouses(); //Get warehouses by city
+getWarehousesTypes(); //Get warehouse types
+findNearestWarehouse(); //Get 5 nearest warehouses by array of strings
+getWarehouse(); //Get one warehouse by city name and warehouse's description
+getStreet(); //Get streets list by city and/or search string
+findArea(); //Find current area in list of areas
+getArea(); //Get area by name or by ID
+getAreas(); //Get areas list by city and/or search string
+findCityByRegion(); //Find city from list by name of region
+getCity(); //Get city by name and region (if it needs)
+__call(); //Magic method of calling functions (uses for calling Common Model of NovaPoshta API)
+
+
+delete(); //Delete method of current model
+update(); //Update method of current model
+save(); //Save method of current model
+
+
+getCounterparties(); //getCounterparties() function of model Counterparty
+cloneLoyaltyCounterpartySender(); //cloneLoyaltyCounterpartySender() function of model Counterparty
+getCounterpartyContactPersons(); //getCounterpartyContactPersons() function of model Counterparty.
+getCounterpartyAddresses(); //getCounterpartyAddresses() function of model Counterparty.
+getCounterpartyOptions(); //getCounterpartyOptions() function of model Counterparty.
+getCounterpartyByEDRPOU(); getCounterpartyByEDRPOU() function of model Counterparty.
+
+
+getDocumentPrice(); //Get price of delivery between two cities.
+getDocumentDeliveryDate(); //Get approximately date of delivery between two cities.
+getDocumentList(); //Get documents list.
+getDocument(); //Get document info by ID.
+
+generateReport(); //Generetes report by Document refs.
+
+checkInternetDocumentRecipients(); //Check required fields for new InternetDocument and set defaults.
+checkInternetDocumentParams(); //Check required params for new InternetDocument and set defaults.
+newInternetDocument(); //Create Internet Document by.
+
+
+printGetLink(); //Get only link on internet document for printing.
+printDocument(); //printDocument method of InternetDocument model.
+printMarking(); //printMarkings method of InternetDocument model.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
