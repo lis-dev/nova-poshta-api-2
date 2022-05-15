@@ -17,6 +17,13 @@ use CurlHandle;
 class NovaPoshtaApi2
 {
     const API_URI = 'https://api.novaposhta.ua/v2.0';
+    
+    const CONNECTION_TYPE_CURL = 0;
+    const CONNECTION_TYPE_FILE_GET_CONTENTS = 1;
+
+    const FORMAT_ARRAY = 0;
+    const FORMAT_JSON = 1;
+    const FORMAT_XML = 3;
 
     /**
      * Key for API NovaPoshta.
@@ -33,9 +40,9 @@ class NovaPoshtaApi2
     protected $throwErrors = false;
 
     /**
-     * @var string Format of returned data - array, json, xml
+     * @var string Format of returned data - self::FORMAT_ARRAY, self::FORMAT_JSON, self::XML
      */
-    protected $format = 'array';
+    protected $format = self::FORMAT_ARRAY;
 
     /**
      * @var string Language of response
@@ -43,9 +50,9 @@ class NovaPoshtaApi2
     protected $language = 'ru';
 
     /**
-     * @var string Connection type (curl | file_get_contents)
+     * @var int Connection type (self::CONNECTION_TYPE_CURL | self::CONNECTION_TYPE_FILE_GET_CONTENTS)
      */
-    protected $connectionType = 'curl';
+    protected $connectionType = self::CONNECTION_TYPE_CURL;
 
     /** @var int Connection timeout (in seconds) */
     protected $timeout = 0;
@@ -76,11 +83,11 @@ class NovaPoshtaApi2
      * @param string $key            NovaPoshta API key
      * @param string $language       Default Language
      * @param bool   $throwErrors    Throw request errors as Exceptions
-     * @param string   $connectionType Connection type (curl | file_get_contents)
+     * @param string   $connectionType Connection type (self::CONNECTION_TYPE_CURL | self::CONNECTION_TYPE_FILE_GET_CONTENTS)
      *
      * @return NovaPoshtaApi2
      */
-    public function __construct($key, $language = 'ru', $throwErrors = false, $connectionType = 'curl')
+    public function __construct($key, $language = 'ru', $throwErrors = false, $connectionType = self::CONNECTION_TYPE_CURL)
     {
         $this->throwErrors = $throwErrors;
         $this
@@ -116,7 +123,7 @@ class NovaPoshtaApi2
     /**
      * Setter for $connectionType property.
      *
-     * @param string $connectionType Connection type (curl | file_get_contents)
+     * @param string $connectionType Connection type (self::CONNECTION_TYPE_CURL | self::CONNECTION_TYPE_FILE_GET_CONTENTS)
      *
      * @return $this
      */
@@ -212,7 +219,7 @@ class NovaPoshtaApi2
     private function prepare($data)
     {
         // Returns array
-        if ('array' == $this->format) {
+        if (self::FORMAT_ARRAY == $this->format) {
             $result = is_array($data)
                 ? $data
                 : json_decode($data, true);
@@ -258,7 +265,7 @@ class NovaPoshtaApi2
     private function request($model, $method, $params = null)
     {
         // Get required URL
-        $url = 'xml' == $this->format
+        $url = self::FORMAT_XML == $this->format
             ? self::API_URI.'/xml/'
             : self::API_URI.'/json/';
 
@@ -271,15 +278,15 @@ class NovaPoshtaApi2
         );
         $result = array();
         // Convert data to neccessary format
-        $post = 'xml' == $this->format
+        $post = self::FORMAT_XML == $this->format
             ? $this->array2xml($data)
             : json_encode($data);
 
-        if ('curl' == $this->getConnectionType()) {
+        if (self::CONNECTION_TYPE_CURL == $this->getConnectionType()) {
             $ch = curl_init($url);
             if (is_resource($ch) || $ch instanceof CurlHandle) {
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: '.('xml' == $this->format ? 'text/xml' : 'application/json')));
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: '.(self::FORMAT_XML == $this->format ? 'text/xml' : 'application/json')));
                 curl_setopt($ch, CURLOPT_HEADER, 0);
                 curl_setopt($ch, CURLOPT_POST, 1);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);

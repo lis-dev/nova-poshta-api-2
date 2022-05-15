@@ -57,7 +57,7 @@ class NovaPoshtaApi2Test extends \PHPUnit\Framework\TestCase
      */
     public function testSetConnectionType()
     {
-        $result = $this->np->setConnectionType('file_get_contents');
+        $result = $this->np->setConnectionType(NovaPoshtaApi2::CONNECTION_TYPE_FILE_GET_CONTENTS);
         $this->assertInstanceOf('LisDev\Delivery\NovaPoshtaApi2', $result);
     }
 
@@ -67,7 +67,10 @@ class NovaPoshtaApi2Test extends \PHPUnit\Framework\TestCase
     public function testGetConnectionType()
     {
         $result = $this->np->getConnectionType();
-        $this->assertNotEmpty($result);
+        $this->assertContains($result, [
+            NovaPoshtaApi2::CONNECTION_TYPE_CURL,
+            NovaPoshtaApi2::CONNECTION_TYPE_FILE_GET_CONTENTS
+        ]);
     }
 
     /**
@@ -103,7 +106,7 @@ class NovaPoshtaApi2Test extends \PHPUnit\Framework\TestCase
      */
     public function testRequestViaFileGetContent()
     {
-        $result = $this->np->setConnectionType('file_get_content')->documentsTracking($this->testTrackNumber);
+        $result = $this->np->setConnectionType(NovaPoshtaApi2::CONNECTION_TYPE_CURL)->documentsTracking($this->testTrackNumber);
         $this->assertTrue($result['success']);
     }
 
@@ -112,7 +115,7 @@ class NovaPoshtaApi2Test extends \PHPUnit\Framework\TestCase
      */
     public function testDocumentsTrackingResultJson()
     {
-        $result = $this->np->setFormat('json')->documentsTracking($this->testTrackNumber);
+        $result = $this->np->setFormat(NovaPoshtaApi2::FORMAT_JSON)->documentsTracking($this->testTrackNumber);
         $result = json_decode($result, 1);
         $this->assertTrue($result['success']);
     }
@@ -122,7 +125,7 @@ class NovaPoshtaApi2Test extends \PHPUnit\Framework\TestCase
      */
     public function testDocumentsTrackingResultJsonXml()
     {
-        $result = $this->np->setFormat('xml')->documentsTracking($this->testTrackNumber);
+        $result = $this->np->setFormat(NovaPoshtaApi2::FORMAT_XML)->documentsTracking($this->testTrackNumber);
         $result = simplexml_load_string($result);
         $result = json_encode($result);
         $result = json_decode($result, 1);
