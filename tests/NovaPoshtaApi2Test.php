@@ -106,7 +106,8 @@ class NovaPoshtaApi2Test extends \PHPUnit\Framework\TestCase
      */
     public function testRequestViaFileGetContent()
     {
-        $result = $this->np->setConnectionType(NovaPoshtaApi2::CONNECTION_TYPE_CURL)->documentsTracking($this->testTrackNumber);
+        $result = $this->np->setConnectionType(NovaPoshtaApi2::CONNECTION_TYPE_CURL)
+            ->documentsTracking($this->testTrackNumber);
         $this->assertTrue($result['success']);
     }
 
@@ -540,7 +541,10 @@ class NovaPoshtaApi2Test extends \PHPUnit\Framework\TestCase
      */
     public function testGetWarehouseManyInCity()
     {
-        $result = $this->np->getWarehouse('db5c88d1-391c-11dd-90d9-001a92567626', 'Відділення №1: вул. Маяковського, 59а');
+        $result = $this->np->getWarehouse(
+            'db5c88d1-391c-11dd-90d9-001a92567626',
+            'Відділення №1: вул. Маяковського, 59а'
+        );
 
         $this->assertTrue($result['success']);
     }
@@ -600,7 +604,11 @@ class NovaPoshtaApi2Test extends \PHPUnit\Framework\TestCase
     {
         // Must return xls with headers
         $this->np->setFormat('xls');
-        $result = $this->np->generateReport(array('Type' => 'xls', 'DocumentRefs' => array('1fb8943e-14e4-11e5-ad08-005056801333'), 'DateTime' => date('d.m.Y')));        
+        $result = $this->np->generateReport(array(
+            'Type' => 'xls',
+            'DocumentRefs' => array('1fb8943e-14e4-11e5-ad08-005056801333'),
+            'DateTime' => date('d.m.Y')
+        ));
 
         $this->assertStringStartsWith("\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1", $result, "Not a valid xls file");
     }
