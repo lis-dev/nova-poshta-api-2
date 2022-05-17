@@ -1,8 +1,11 @@
 <?php
+
 /**
  * Areas list
  * There missed Crimea. Nova Poshta temporary doesn't work in this region.
+ * php version 8.0
  */
+
 return array(
     '71508129-9b87-11de-822f-000c2965ae0e' => array(
         'Description' => 'Вінниця',

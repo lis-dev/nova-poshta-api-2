@@ -2,6 +2,8 @@
 
 namespace LisDev\Tests;
 
+use LisDev\Delivery\Contracts\FormatInterface;
+use LisDev\Delivery\Contracts\RequestInterface;
 use LisDev\Delivery\NovaPoshtaApi2;
 
 /**
@@ -9,7 +11,7 @@ use LisDev\Delivery\NovaPoshtaApi2;
  *
  * @author lis-dev
  */
-class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
+class NovaPoshtaApi2Test extends \PHPUnit\Framework\TestCase
 {
     /**
      * Key for connection.
@@ -36,7 +38,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
     /**
      * Set up before class.
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         // Disable notices
         error_reporting(E_ALL ^ E_NOTICE);
@@ -46,7 +48,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
     /**
      * Set up before each test.
      */
-    public function setUp()
+    public function setUp(): void
     {
         // Create new instance
         $this->np = new NovaPoshtaApi2(self::$key);
@@ -57,7 +59,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testSetConnectionType()
     {
-        $result = $this->np->setConnectionType('file_get_contents');
+        $result = $this->np->setConnectionType(RequestInterface::CONNECTION_TYPE_FILE_GET_CONTENTS);
         $this->assertInstanceOf('LisDev\Delivery\NovaPoshtaApi2', $result);
     }
 
@@ -67,7 +69,10 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
     public function testGetConnectionType()
     {
         $result = $this->np->getConnectionType();
-        $this->assertNotEmpty($result);
+        $this->assertContains($result, [
+            RequestInterface::CONNECTION_TYPE_CURL,
+            RequestInterface::CONNECTION_TYPE_FILE_GET_CONTENTS
+        ]);
     }
 
     /**
@@ -103,7 +108,8 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testRequestViaFileGetContent()
     {
-        $result = $this->np->setConnectionType('file_get_content')->documentsTracking($this->testTrackNumber);
+        $result = $this->np->setConnectionType(RequestInterface::CONNECTION_TYPE_CURL)
+            ->documentsTracking($this->testTrackNumber);
         $this->assertTrue($result['success']);
     }
 
@@ -112,7 +118,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testDocumentsTrackingResultJson()
     {
-        $result = $this->np->setFormat('json')->documentsTracking($this->testTrackNumber);
+        $result = $this->np->setFormat(FormatInterface::FORMAT_JSON)->documentsTracking($this->testTrackNumber);
         $result = json_decode($result, 1);
         $this->assertTrue($result['success']);
     }
@@ -122,7 +128,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testDocumentsTrackingResultJsonXml()
     {
-        $result = $this->np->setFormat('xml')->documentsTracking($this->testTrackNumber);
+        $result = $this->np->setFormat(FormatInterface::FORMAT_XML)->documentsTracking($this->testTrackNumber);
         $result = simplexml_load_string($result);
         $result = json_encode($result);
         $result = json_decode($result, 1);
@@ -342,6 +348,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
             'OwnershipForm' => '7f0f351d-2519-11df-be9a-000c291af1b3',
             'EDRPOU' => '12345678',
         ));
+
         // $this->assertTrue($result['success']);
         /*
         return array(
@@ -536,7 +543,10 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
      */
     public function testGetWarehouseManyInCity()
     {
-        $result = $this->np->getWarehouse('db5c88d1-391c-11dd-90d9-001a92567626', 'Відділення №1: вул. Маяковського, 59а');
+        $result = $this->np->getWarehouse(
+            'db5c88d1-391c-11dd-90d9-001a92567626',
+            'Відділення №1: вул. Маяковського, 59а'
+        );
 
         $this->assertTrue($result['success']);
     }
@@ -587,7 +597,6 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
     {
         $result = $this->np->getDocumentList();
         $this->assertTrue($result['success']);
-        return $result['data'][0]['Ref'];
     }
 
     /**
@@ -596,8 +605,14 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
     public function testGenerateReport()
     {
         // Must return xls with headers
-        $result = $this->np->generateReport(array('Type' => 'xls', 'DocumentRefs' => array('1fb8943e-14e4-11e5-ad08-005056801333'), 'DateTime' => date('d.m.Y')));
-        $this->assertEmpty($result);
+        $this->np->setFormat('xls');
+        $result = $this->np->generateReport(array(
+            'Type' => 'xls',
+            'DocumentRefs' => array('1fb8943e-14e4-11e5-ad08-005056801333'),
+            'DateTime' => date('d.m.Y')
+        ));
+
+        $this->assertStringStartsWith("\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1", $result, "Not a valid xls file");
     }
 
     /**
@@ -606,6 +621,7 @@ class NovaPoshtaApi2Test extends \PHPUnit_Framework_TestCase
     public function testNewInternetDocumentGetSender()
     {
         $existingSender = $this->np->getCounterparties('Sender', 1, '', '');
+
         $this->assertNotEmpty($existingSender['data'][0]);
         return $existingSender['data'][0];
     }

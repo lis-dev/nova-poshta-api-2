@@ -3,6 +3,7 @@
 .htaccess
 .php_cs.cache
 .idea/
+.vscode/
 tests/cover
 vendor/
 web/
