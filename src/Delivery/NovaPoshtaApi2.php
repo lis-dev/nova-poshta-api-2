@@ -2,7 +2,10 @@
 
 namespace LisDev\Delivery;
 
-use CurlHandle;
+use LisDev\Delivery\Contracts\FormatInterface;
+use LisDev\Delivery\Contracts\RequestInterface;
+use LisDev\Delivery\Helpers\PrepareData;
+use LisDev\Delivery\Request\Request;
 
 /**
  * Nova Poshta API Class.
@@ -14,16 +17,9 @@ use CurlHandle;
  *
  * @license MIT
  */
-class NovaPoshtaApi2
+class NovaPoshtaApi2 implements FormatInterface
 {
     public const API_URI = 'https://api.novaposhta.ua/v2.0';
-
-    public const CONNECTION_TYPE_CURL = 0;
-    public const CONNECTION_TYPE_FILE_GET_CONTENTS = 1;
-
-    public const FORMAT_ARRAY = 0;
-    public const FORMAT_JSON = 1;
-    public const FORMAT_XML = 3;
 
     /**
      * Key for API NovaPoshta.
@@ -52,7 +48,7 @@ class NovaPoshtaApi2
     /**
      * @var int Connection type (self::CONNECTION_TYPE_CURL | self::CONNECTION_TYPE_FILE_GET_CONTENTS)
      */
-    protected $connectionType = self::CONNECTION_TYPE_CURL;
+    protected $connectionType = RequestInterface::CONNECTION_TYPE_CURL;
 
     /** @var int Connection timeout (in seconds) */
     protected $timeout = 0;
@@ -77,6 +73,8 @@ class NovaPoshtaApi2
      */
     protected $params = array();
 
+    protected RequestInterface $request;
+
     /**
      * Default constructor.
      *
@@ -91,14 +89,34 @@ class NovaPoshtaApi2
         $key,
         $language = 'ru',
         $throwErrors = false,
-        $connectionType = self::CONNECTION_TYPE_CURL
+        $connectionType = RequestInterface::CONNECTION_TYPE_CURL
     ) {
         $this->throwErrors = $throwErrors;
         $this
             ->setKey($key)
             ->setLanguage($language)
-            ->setConnectionType($connectionType)
             ->model('Common');
+
+        $this->request = new Request(
+            $this->key,
+            self::API_URI,
+            $this->format,
+            $this->language,
+            $this->connectionType,
+            $this->throwErrors
+        );
+        $this->request->setConnectionType($connectionType)->setTimeout($this->timeout);
+    }
+
+    public function setConnectionType($connectionType)
+    {
+        $this->request->setConnectionType($connectionType);
+        return $this;
+    }
+
+    public function getConnectionType()
+    {
+        return $this->request->getConnectionType();
     }
 
     /**
@@ -122,49 +140,6 @@ class NovaPoshtaApi2
     public function getKey()
     {
         return $this->key;
-    }
-
-    /**
-     * Setter for $connectionType property.
-     *
-     * @param int $connectionType Connection type (self::CONNECTION_TYPE_CURL | self::CONNECTION_TYPE_FILE_GET_CONTENTS)
-     *
-     * @return $this
-     */
-    public function setConnectionType($connectionType)
-    {
-        $this->connectionType = $connectionType;
-        return $this;
-    }
-
-    /**
-     * Getter for $connectionType property.
-     *
-     * @return string
-     */
-    public function getConnectionType()
-    {
-        return $this->connectionType;
-    }
-
-    /**
-     * @param int $timeout
-     *
-     * @return $this
-     */
-    public function setTimeout($timeout)
-    {
-        $this->timeout = (int)$timeout;
-
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getTimeout()
-    {
-        return $this->timeout;
     }
 
     /**
@@ -199,7 +174,7 @@ class NovaPoshtaApi2
      */
     public function setFormat($format)
     {
-        $this->format = $format;
+        $this->request->setFormat($format);
         return $this;
     }
 
@@ -210,33 +185,7 @@ class NovaPoshtaApi2
      */
     public function getFormat()
     {
-        return $this->format;
-    }
-
-    /**
-     * Prepare data before return it.
-     *
-     * @param string|array $data
-     *
-     * @return mixed
-     */
-    private function prepare($data)
-    {
-        // Returns array
-        if (self::FORMAT_ARRAY == $this->format) {
-            $result = is_array($data)
-                ? $data
-                : json_decode($data, true);
-            // If error exists, throw Exception
-            if ($this->throwErrors and array_key_exists('errors', $result) and $result['errors']) {
-                throw new \Exception(is_array($result['errors']) ?
-                    implode("\n", $result['errors']) :
-                    $result['errors']);
-            }
-            return $result;
-        }
-        // Returns json or xml document
-        return $data;
+        return $this->request->getFormat();
     }
 
     /**
@@ -259,72 +208,6 @@ class NovaPoshtaApi2
             }
         }
         return $xml->asXML();
-    }
-
-    /**
-     * Make request to NovaPoshta API.
-     *
-     * @param string $model  Model name
-     * @param string $method Method name
-     * @param array  $params Required params
-     */
-    private function request($model, $method, $params = null)
-    {
-        // Get required URL
-        $url = self::FORMAT_XML == $this->format
-            ? self::API_URI . '/xml/'
-            : self::API_URI . '/json/';
-
-        $data = array(
-            'apiKey' => $this->key,
-            'modelName' => $model,
-            'calledMethod' => $method,
-            'language' => $this->language,
-            'methodProperties' => $params,
-        );
-        $result = array();
-        // Convert data to neccessary format
-        $post = self::FORMAT_XML == $this->format
-            ? $this->array2xml($data)
-            : json_encode($data);
-
-        if (self::CONNECTION_TYPE_CURL == $this->getConnectionType()) {
-            $ch = curl_init($url);
-            if (is_resource($ch) || $ch instanceof CurlHandle) {
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                    'Content-Type: ' . (self::FORMAT_XML == $this->format ? 'text/xml' : 'application/json')
-                ));
-                curl_setopt($ch, CURLOPT_HEADER, 0);
-                curl_setopt($ch, CURLOPT_POST, 1);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-
-                if ($this->timeout > 0) {
-                    curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
-                    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->timeout);
-                }
-
-                $result = curl_exec($ch);
-                curl_close($ch);
-            }
-        } else {
-            $httpOptions = array(
-                'method' => 'POST',
-                'header' => "Content-type: application/x-www-form-urlencoded;\r\n",
-                'content' => $post,
-            );
-
-            if ($this->timeout > 0) {
-                $httpOptions['timeout'] = $this->timeout;
-            }
-
-            $result = file_get_contents($url, false, stream_context_create(array(
-                'http' => $httpOptions,
-            )));
-        }
-
-        return $this->prepare($result);
     }
 
     /**
@@ -384,7 +267,7 @@ class NovaPoshtaApi2
      */
     public function execute()
     {
-        return $this->request($this->model, $this->method, $this->params);
+        return $this->request->exec($this->model, $this->method, $this->params);
     }
 
     /**
@@ -397,8 +280,7 @@ class NovaPoshtaApi2
     public function documentsTracking($track)
     {
         $params = array('Documents' => array(array('DocumentNumber' => $track)));
-
-        return $this->request('TrackingDocument', 'getStatusDocuments', $params);
+        return $this->request->exec('TrackingDocument', 'getStatusDocuments', $params);
     }
 
     /**
@@ -412,7 +294,7 @@ class NovaPoshtaApi2
      */
     public function getCities($page = 0, $findByString = '', $ref = '')
     {
-        return $this->request('Address', 'getCities', array(
+        return $this->request->exec('Address', 'getCities', array(
             'Page' => $page,
             'FindByString' => $findByString,
             'Ref' => $ref,
@@ -429,7 +311,7 @@ class NovaPoshtaApi2
      */
     public function getWarehouses($cityRef, $page = 0)
     {
-        return $this->request('Address', 'getWarehouses', array(
+        return $this->request->exec('Address', 'getWarehouses', array(
             'CityRef' => $cityRef,
             'Page' => $page,
         ));
@@ -442,7 +324,7 @@ class NovaPoshtaApi2
      */
     public function getWarehouseTypes()
     {
-        return $this->request('Address', 'getWarehouseTypes');
+        return $this->request->exec('Address', 'getWarehouseTypes');
     }
 
     /**
@@ -455,7 +337,7 @@ class NovaPoshtaApi2
     public function findNearestWarehouse($searchStringArray)
     {
         $searchStringArray = (array) $searchStringArray;
-        return $this->request('Address', 'findNearestWarehouse', array(
+        return $this->request->exec('Address', 'findNearestWarehouse', array(
             'SearchStringArray' => $searchStringArray,
         ));
     }
@@ -490,14 +372,16 @@ class NovaPoshtaApi2
         // Error
         (!$data) and $error = 'Warehouse was not found';
         // Return data in same format like NovaPoshta API
-        return $this->prepare(
+        return PrepareData::prepare(
             array(
                 'success' => empty($error),
                 'data' => array($data),
                 'errors' => (array) $error,
                 'warnings' => array(),
                 'info' => array(),
-            )
+            ),
+            $this->getFormat(),
+            $this->throwErrors
         );
     }
 
@@ -512,7 +396,7 @@ class NovaPoshtaApi2
      */
     public function getStreet($cityRef, $findByString = '', $page = 0)
     {
-        return $this->request('Address', 'getStreet', array(
+        return $this->request->exec('Address', 'getStreet', array(
             'FindByString' => $findByString,
             'CityRef' => $cityRef,
             'Page' => $page,
@@ -569,14 +453,16 @@ class NovaPoshtaApi2
         $error = array();
         empty($data) and $error = array('Area was not found');
         // Return data in same format like NovaPoshta API
-        return $this->prepare(
+        return PrepareData::prepare(
             array(
                 'success' => empty($error),
                 'data' => $data,
                 'errors' => $error,
                 'warnings' => array(),
                 'info' => array(),
-            )
+            ),
+            $this->getFormat(),
+            $this->throwErrors
         );
     }
 
@@ -590,7 +476,7 @@ class NovaPoshtaApi2
      */
     public function getAreas($ref = '', $page = 0)
     {
-        return $this->request('Address', 'getAreas', array(
+        return $this->request->exec('Address', 'getAreas', array(
             'Ref' => $ref,
             'Page' => $page,
         ));
@@ -659,14 +545,16 @@ class NovaPoshtaApi2
         $error = array();
         (!$data) and $error = array('City was not found');
         // Return data in same format like NovaPoshta API
-        return $this->prepare(
+        return PrepareData::prepare(
             array(
                 'success' => empty($error),
                 'data' => $data,
                 'errors' => $error,
                 'warnings' => array(),
                 'info' => array(),
-            )
+            ),
+            $this->getFormat(),
+            $this->throwErrors
         );
     }
 
@@ -714,7 +602,7 @@ class NovaPoshtaApi2
      */
     public function delete($params)
     {
-        return $this->request($this->model, 'delete', $params);
+        return $this->request->exec($this->model, 'delete', $params);
     }
 
     /**
@@ -731,7 +619,7 @@ class NovaPoshtaApi2
      */
     public function update($params)
     {
-        return $this->request($this->model, 'update', $params);
+        return $this->request->exec($this->model, 'update', $params);
     }
 
     /**
@@ -750,7 +638,7 @@ class NovaPoshtaApi2
      */
     public function save($params)
     {
-        return $this->request($this->model, 'save', $params);
+        return $this->request->exec($this->model, 'save', $params);
     }
 
     /**
@@ -775,7 +663,7 @@ class NovaPoshtaApi2
         $page and $params['Page'] = $page;
         $findByString and $params['FindByString'] = $findByString;
         $cityRef and $params['City'] = $cityRef;
-        return $this->request('Counterparty', 'getCounterparties', $params);
+        return $this->request->exec('Counterparty', 'getCounterparties', $params);
     }
 
     /**
@@ -788,7 +676,7 @@ class NovaPoshtaApi2
      */
     public function cloneLoyaltyCounterpartySender($cityRef)
     {
-        return $this->request('Counterparty', 'cloneLoyaltyCounterpartySender', array('CityRef' => $cityRef));
+        return $this->request->exec('Counterparty', 'cloneLoyaltyCounterpartySender', array('CityRef' => $cityRef));
     }
 
     /**
@@ -800,7 +688,7 @@ class NovaPoshtaApi2
      */
     public function getCounterpartyContactPersons($ref)
     {
-        return $this->request('Counterparty', 'getCounterpartyContactPersons', array('Ref' => $ref));
+        return $this->request->exec('Counterparty', 'getCounterpartyContactPersons', array('Ref' => $ref));
     }
 
     /**
@@ -813,7 +701,7 @@ class NovaPoshtaApi2
      */
     public function getCounterpartyAddresses($ref, $page = 0)
     {
-        return $this->request('Counterparty', 'getCounterpartyAddresses', array('Ref' => $ref, 'Page' => $page));
+        return $this->request->exec('Counterparty', 'getCounterpartyAddresses', array('Ref' => $ref, 'Page' => $page));
     }
 
     /**
@@ -825,7 +713,7 @@ class NovaPoshtaApi2
      */
     public function getCounterpartyOptions($ref)
     {
-        return $this->request('Counterparty', 'getCounterpartyOptions', array('Ref' => $ref));
+        return $this->request->exec('Counterparty', 'getCounterpartyOptions', array('Ref' => $ref));
     }
 
     /**
@@ -838,7 +726,7 @@ class NovaPoshtaApi2
      */
     public function getCounterpartyByEDRPOU($edrpou, $cityRef)
     {
-        return $this->request(
+        return $this->request->exec(
             'Counterparty',
             'getCounterpartyByEDRPOU',
             array('EDRPOU' => $edrpou, 'cityRef' => $cityRef)
@@ -858,7 +746,7 @@ class NovaPoshtaApi2
      */
     public function getDocumentPrice($citySender, $cityRecipient, $serviceType, $weight, $cost)
     {
-        return $this->request('InternetDocument', 'getDocumentPrice', array(
+        return $this->request->exec('InternetDocument', 'getDocumentPrice', array(
             'CitySender' => $citySender,
             'CityRecipient' => $cityRecipient,
             'ServiceType' => $serviceType,
@@ -879,7 +767,7 @@ class NovaPoshtaApi2
      */
     public function getDocumentDeliveryDate($citySender, $cityRecipient, $serviceType, $dateTime)
     {
-        return $this->request('InternetDocument', 'getDocumentDeliveryDate', array(
+        return $this->request->exec('InternetDocument', 'getDocumentDeliveryDate', array(
             'CitySender' => $citySender,
             'CityRecipient' => $cityRecipient,
             'ServiceType' => $serviceType,
@@ -907,7 +795,7 @@ class NovaPoshtaApi2
      */
     public function getDocumentList($params = null)
     {
-        return $this->request('InternetDocument', 'getDocumentList', $params ? $params : null);
+        return $this->request->exec('InternetDocument', 'getDocumentList', $params ? $params : null);
     }
 
     /**
@@ -919,7 +807,7 @@ class NovaPoshtaApi2
      */
     public function getDocument($ref)
     {
-        return $this->request('InternetDocument', 'getDocument', array(
+        return $this->request->exec('InternetDocument', 'getDocument', array(
             'Ref' => $ref,
         ));
     }
@@ -934,7 +822,7 @@ class NovaPoshtaApi2
      */
     public function generateReport($params)
     {
-        return $this->request('InternetDocument', 'generateReport', $params);
+        return $this->request->exec('InternetDocument', 'generateReport', $params);
     }
 
     /**
@@ -1094,14 +982,16 @@ class NovaPoshtaApi2
                 . '/type/' . str_replace('_link', '', $type)
                 . '/apiKey/' . $this->key;
         // Return data in same format like NovaPoshta API
-        return $this->prepare(
+        return PrepareData::prepare(
             array(
                 'success' => true,
                 'data' => array($data),
                 'errors' => array(),
                 'warnings' => array(),
                 'info' => array(),
-            )
+            ),
+            $this->getFormat(),
+            $this->throwErrors
         );
     }
 
@@ -1121,7 +1011,7 @@ class NovaPoshtaApi2
             return $this->printGetLink('printDocument', $documentRefs, $type);
         }
         // If needs data
-        return $this->request(
+        return $this->request->exec(
             'InternetDocument',
             'printDocument',
             array('DocumentRefs' => $documentRefs, 'Type' => $type)
@@ -1146,6 +1036,6 @@ class NovaPoshtaApi2
             return $this->printGetLink($method, $documentRefs, $type);
         }
         // If needs data
-        return $this->request('InternetDocument', $method, array('DocumentRefs' => $documentRefs, 'Type' => $type));
+        return $this->request->exec('InternetDocument', $method, array('DocumentRefs' => $documentRefs, 'Type' => $type));
     }
 }
