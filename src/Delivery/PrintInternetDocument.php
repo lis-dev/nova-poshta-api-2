@@ -54,6 +54,12 @@ class PrintInternetDocument
             return $this->printGetLink('printDocument', $documentRefs, $type);
         }
         // If needs data
+        /*
+         * R1KO указал на несуществующий метод реквест.
+         * Но после вынесение метода printDocument из NovaPoshtaApi2 я не понял как использовать этот метод.
+         * Была мысль создать объект NovaPoshtaApi2 и из него вызывать реквест, но это точно не то.
+         * Оставляю так как и было, потому что не понял как лучше сделать.
+         */
         return $this->request('InternetDocument', 'printDocument', array('DocumentRefs' => $documentRefs, 'Type' => $type));
     }
 

@@ -9,7 +9,9 @@ class Array2Xml
      */
     public function array2xml(array $array, $xml = false)
     {
-        (false === $xml) and $xml = new \SimpleXMLElement('<root/>');
+        if ($xml) {
+            $xml = new \SimpleXMLElement('<root/>');
+        }
         foreach ($array as $key => $value) {
             if (is_numeric($key)) {
                 $key = 'item';

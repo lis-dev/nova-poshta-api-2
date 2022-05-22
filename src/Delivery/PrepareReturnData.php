@@ -22,7 +22,7 @@ class PrepareReturnData
     public function prepare($data)
     {
         // Returns array
-        if ('array' == $this->format) {
+  /*      if ('array' == $this->format) {
             $result = is_array($data)
                 ? $data
                 : json_decode($data, true);
@@ -34,5 +34,17 @@ class PrepareReturnData
         }
         // Returns json or xml document
         return $data;
+*/
+        // Returns json or xml document
+        if ($this->format != 'array') return $data;
+
+        $result = is_array($data)
+            ? $data
+            : json_decode($data, true);
+        // If error exists, throw Exception
+        if ($this->throwErrors and array_key_exists('errors', $result) and $result['errors']) {
+            throw new \Exception(is_array($result['errors']) ? implode("\n", $result['errors']) : $result['errors']);
+        }
+        return $result;
     }
 }

@@ -206,6 +206,10 @@ class NovaPoshtaApi2
 
 
     /**
+     * Я не могу понять нужно выносить этот метод в отдельный класс
+     * или он является фундаметном в этом классе NovaPoshtaApi2
+     */
+    /**
      * Make request to NovaPoshta API.
      *
      * @param string $model  Model name
@@ -231,11 +235,21 @@ class NovaPoshtaApi2
         $prepare = new PrepareReturnData();
         $array2xml = new Array2Xml();
 
+        /*
+         * Замечание R1KO:
+         * На самом деле логику преобразования данных в нужный формат стоило вынести в отдельную иерархию абстракций, как раз таки в PrepareReturnData.
+         * Здесь тоже самое, я не понимаю как вынести это преобразование из метода реквест.
+         *
+         */
         // Convert data to neccessary format
         $post = 'xml' == $this->format
             ? $array2xml->array2xml($data)
             : json_encode($data);
 
+        /*
+         * Здесь тоже самое, я не понимаю как вынести этот транспорт из метода реквест, чтобы потом в нём использовать.
+         *
+         */
         if ('curl' == $this->getConnectionType()) {
             $ch = curl_init($url);
             if (is_resource($ch)) {
