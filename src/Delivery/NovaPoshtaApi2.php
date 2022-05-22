@@ -1,6 +1,9 @@
 <?php
 
 namespace LisDev\Delivery;
+use PrepareReturnData;
+use Array2Xml;
+
 
 /**
  * Nova Poshta API Class.
@@ -200,52 +203,12 @@ class NovaPoshtaApi2
         return $this->format;
     }
 
-    /**
-     * Prepare data before return it.
-     *
-     * @param string|array $data
-     *
-     * @return mixed
-     */
-    private function prepare($data)
-    {
-        // Returns array
-        if ('array' == $this->format) {
-            $result = is_array($data)
-                ? $data
-                : json_decode($data, true);
-            // If error exists, throw Exception
-            if ($this->throwErrors and array_key_exists('errors', $result) and $result['errors']) {
-                throw new \Exception(is_array($result['errors']) ? implode("\n", $result['errors']) : $result['errors']);
-            }
-            return $result;
-        }
-        // Returns json or xml document
-        return $data;
-    }
+
 
     /**
-     * Converts array to xml.
-     *
-     * @param array $array
-     * @param \SimpleXMLElement|bool $xml
+     * Я не могу понять нужно выносить этот метод в отдельный класс
+     * или он является фундаметном в этом классе NovaPoshtaApi2
      */
-    private function array2xml(array $array, $xml = false)
-    {
-        (false === $xml) and $xml = new \SimpleXMLElement('<root/>');
-        foreach ($array as $key => $value) {
-            if (is_numeric($key)) {
-                $key = 'item';
-            }
-            if (is_array($value)) {
-                $this->array2xml($value, $xml->addChild($key));
-            } else {
-                $xml->addChild($key, $value);
-            }
-        }
-        return $xml->asXML();
-    }
-
     /**
      * Make request to NovaPoshta API.
      *
@@ -268,11 +231,25 @@ class NovaPoshtaApi2
             'methodProperties' => $params,
         );
         $result = array();
+
+        $prepare = new PrepareReturnData();
+        $array2xml = new Array2Xml();
+
+        /*
+         * Замечание R1KO:
+         * На самом деле логику преобразования данных в нужный формат стоило вынести в отдельную иерархию абстракций, как раз таки в PrepareReturnData.
+         * Здесь тоже самое, я не понимаю как вынести это преобразование из метода реквест.
+         *
+         */
         // Convert data to neccessary format
         $post = 'xml' == $this->format
-            ? $this->array2xml($data)
+            ? $array2xml->array2xml($data)
             : json_encode($data);
 
+        /*
+         * Здесь тоже самое, я не понимаю как вынести этот транспорт из метода реквест, чтобы потом в нём использовать.
+         *
+         */
         if ('curl' == $this->getConnectionType()) {
             $ch = curl_init($url);
             if (is_resource($ch)) {
@@ -307,7 +284,7 @@ class NovaPoshtaApi2
             )));
         }
 
-        return $this->prepare($result);
+        return $prepare->prepare($result);
     }
 
     /**
@@ -1047,69 +1024,5 @@ class NovaPoshtaApi2
         return $this->model('InternetDocument')->save($paramsInternetDocument);
     }
 
-    /**
-     * Get only link on internet document for printing.
-     *
-     * @param string       $method       Called method of NovaPoshta API
-     * @param array        $documentRefs Array of Documents IDs
-     * @param string       $type         (html_link|pdf_link)
-     *
-     * @return mixed
-     */
-    protected function printGetLink($method, $documentRefs, $type)
-    {
-        $data = 'https://my.novaposhta.ua/orders/'.$method.'/orders[]/'.implode(',', $documentRefs)
-                .'/type/'.str_replace('_link', '', $type)
-                .'/apiKey/'.$this->key;
-        // Return data in same format like NovaPoshta API
-        return $this->prepare(
-            array(
-                'success' => true,
-                'data' => array($data),
-                'errors' => array(),
-                'warnings' => array(),
-                'info' => array(),
-        )
-        );
-    }
 
-    /**
-     * printDocument method of InternetDocument model.
-     *
-     * @param array|string $documentRefs Array of Documents IDs
-     * @param string       $type         (pdf|html|html_link|pdf_link)
-     *
-     * @return mixed
-     */
-    public function printDocument($documentRefs, $type = 'html')
-    {
-        $documentRefs = (array) $documentRefs;
-        // If needs link
-        if ('html_link' == $type or 'pdf_link' == $type) {
-            return $this->printGetLink('printDocument', $documentRefs, $type);
-        }
-        // If needs data
-        return $this->request('InternetDocument', 'printDocument', array('DocumentRefs' => $documentRefs, 'Type' => $type));
-    }
-
-    /**
-     * printMarkings method of InternetDocument model.
-     *
-     * @param array|string $documentRefs Array of Documents IDs
-     * @param string       $type         (pdf|new_pdf|new_html|old_html|html_link|pdf_link)
-     *
-     * @return mixed
-     */
-    public function printMarkings($documentRefs, $type = 'new_html', $size = '85x85')
-    {
-        $documentRefs = (array) $documentRefs;
-        $documentSize = $size === '85x85' ? '85x85' : '100x100';
-        $method = 'printMarking'.$documentSize;
-        // If needs link
-        if ('html_link' == $type or 'pdf_link' == $type) {
-            return $this->printGetLink($method, $documentRefs, $type);
-        }
-        // If needs data
-        return $this->request('InternetDocument', $method, array('DocumentRefs' => $documentRefs, 'Type' => $type));
-    }
 }
