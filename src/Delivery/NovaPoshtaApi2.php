@@ -426,6 +426,16 @@ class NovaPoshtaApi2
             'Page' => $page,
         ));
     }
+    
+    /**
+     * Get warehouse types.
+     *
+     * @return mixed
+     */
+    public function getWarehouseTypes()
+    {
+        return $this->request('Address', 'getWarehouseTypes');
+    }    
 
     /**
      * Get 5 nearest warehouses by array of strings.
